@@ -1,0 +1,3588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Transformation Story - Spark New Zealand</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        /* Navigation Styles */
+        #storyNavigation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 10000;
+            transition: transform 0.4s ease;
+        }
+
+        .story-nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .story-progress {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #06b6d4, #3b82f6);
+            border-radius: 2px;
+            transition: width 0.6s ease;
+        }
+
+        .progress-text {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .story-chapters {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+
+        .chapter-nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            opacity: 0.6;
+        }
+
+        .chapter-nav:hover {
+            background: rgba(255, 255, 255, 0.1);
+            opacity: 1;
+        }
+
+        .chapter-nav.active {
+            opacity: 1;
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .chapter-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .chapter-nav.active .chapter-dot {
+            background: #06b6d4;
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+        }
+
+        .chapter-nav.completed .chapter-dot {
+            background: #22c55e;
+        }
+
+        .chapter-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chapter-name {
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .chapter-subtitle {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            line-height: 1.2;
+        }
+
+        .story-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .nav-button {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            color: #60a5fa;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover {
+            background: rgba(59, 130, 246, 0.4);
+            color: white;
+        }
+
+        .nav-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            padding-top: 80px;
+            min-height: 100vh;
+        }
+
+        .story-section {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+            min-height: calc(100vh - 80px);
+        }
+
+        .story-section.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Home Section Styles */
+        .home-section {
+            padding: 40px 20px;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 60px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            padding: 60px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            max-width: 1200px;
+            margin: 0 auto 60px;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+            animation: rotate 20s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes rotate {
+            100% { transform: rotate(360deg); }
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #06b6d4, #3b82f6, #8b5cf6);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+
+        .hero p {
+            color: #94a3b8;
+            font-size: 1.3rem;
+            max-width: 600px;
+            margin: 0 auto 30px;
+            line-height: 1.6;
+        }
+
+        .story-journey {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .chapter-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border-radius: 25px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chapter-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-color), var(--accent-color-light));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+
+        .chapter-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .chapter-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .chapter-card.roadmap { --accent-color: #06b6d4; --accent-color-light: #67e8f9; }
+        .chapter-card.analysis { --accent-color: #3b82f6; --accent-color-light: #93c5fd; }
+        .chapter-card.departments { --accent-color: #8b5cf6; --accent-color-light: #c4b5fd; }
+        .chapter-card.summary { --accent-color: #f59e0b; --accent-color-light: #fbbf24; }
+
+        .chapter-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .chapter-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #e2e8f0;
+        }
+
+        .chapter-description {
+            color: #94a3b8;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .chapter-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chapter-type {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .chapter-arrow {
+            color: var(--accent-color);
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .chapter-card:hover .chapter-arrow {
+            transform: translateX(5px);
+        }
+
+        /* Shared Content Styles */
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #06b6d4, #3b82f6, #8b5cf6);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .control-button {
+            background: rgba(59, 130, 246, 0.2);
+            border: 2px solid #3b82f6;
+            color: #60a5fa;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            font-size: 0.9rem;
+        }
+
+        .control-button:hover {
+            background: #3b82f6;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .control-button.active {
+            background: #3b82f6;
+            color: white;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+        }
+
+        .ai-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #06b6d4;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Chart Styles */
+        .chart-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 600px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .chart-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(6, 182, 212, 0.05), rgba(59, 130, 246, 0.05));
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .chart-title {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 20px;
+        }
+
+        /* Chart interaction enhancements */
+        .legend-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .legend-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 15px;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .legend-text {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            transition: all 0.3s ease;
+        }
+
+        .chart-insights {
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Enhanced button hover effects */
+        .option-button {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .option-button:hover::before {
+            left: 100%;
+        }
+
+        /* Fullscreen mode styles */
+        .chart-container:fullscreen {
+            background: #0f172a;
+            padding: 40px;
+        }
+
+        .chart-container:fullscreen .chart-wrapper {
+            height: calc(100vh - 200px);
+        }
+
+        .chart-container:fullscreen .chart-title {
+            font-size: 2rem;
+            margin-bottom: 30px;
+        }
+
+        .chart-options {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .option-group {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .option-label {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .option-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .option-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #94a3b8;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .option-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #e2e8f0;
+        }
+
+        .option-button.active {
+            background: #06b6d4;
+            color: white;
+            border-color: #06b6d4;
+        }
+
+        /* Loading Animation */
+        .loading-animation {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: #06b6d4;
+        }
+
+        .spinner {
+            border: 3px solid rgba(6, 182, 212, 0.3);
+            border-top: 3px solid #06b6d4;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Roadmap Specific Styles */
+        .org-chart {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .company-root {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .company-node {
+            display: inline-block;
+            background: linear-gradient(135deg, #06b6d4, #3b82f6);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 15px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        }
+
+        .ai-transformation-level {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #10b981;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .business-units {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .business-unit {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .business-unit:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .unit-header {
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(139, 92, 246, 0.3));
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .unit-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #e2e8f0;
+        }
+
+        .ai-integration-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .integration-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #06b6d4);
+            transition: width 1s ease;
+            border-radius: 4px;
+        }
+
+        .ai-metrics {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .unit-content {
+            padding: 20px;
+        }
+
+        .department {
+            background: rgba(255, 255, 255, 0.05);
+            margin-bottom: 12px;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #06b6d4;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .department:hover {
+            background: rgba(59, 130, 246, 0.1);
+            transform: translateX(5px);
+        }
+
+        .dept-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .dept-name {
+            font-weight: 500;
+            color: #e2e8f0;
+            font-size: 0.95rem;
+            flex: 1;
+        }
+
+        .dept-employee-count {
+            color: #94a3b8;
+            font-size: 0.8rem;
+            margin-right: 8px;
+            background: rgba(148, 163, 184, 0.1);
+            padding: 2px 6px;
+            border-radius: 8px;
+        }
+
+        .ai-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .ai-badge.high {
+            background: #10b981;
+            color: white;
+        }
+
+        .ai-badge.medium {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .ai-badge.low {
+            background: #6b7280;
+            color: white;
+        }
+
+        .ai-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .ai-feature {
+            background: rgba(6, 182, 212, 0.2);
+            color: #67e8f9;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.65rem;
+            border: 1px solid rgba(6, 182, 212, 0.3);
+        }
+
+        .automation-impact {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .impact-metric {
+            text-align: center;
+        }
+
+        .impact-value {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #10b981;
+        }
+
+        .impact-label {
+            font-size: 0.65rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+        }
+
+        .transformation-timeline {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 280px;
+            z-index: 1000;
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #06b6d4;
+            text-align: center;
+        }
+
+        .timeline-step {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-left: 3px solid #374151;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-step.active {
+            border-left-color: #06b6d4;
+            background: rgba(6, 182, 212, 0.1);
+        }
+
+        .step-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .step-description {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        /* Summary Styles */
+        .business-unit-container {
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        .business-unit-header {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(139, 92, 246, 0.3));
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .business-unit-header:hover {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.4), rgba(139, 92, 246, 0.4));
+        }
+
+        .unit-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .unit-stats {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .unit-stat {
+            text-align: center;
+        }
+
+        .unit-stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #06b6d4;
+        }
+
+        .unit-stat-label {
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+
+        .expand-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .business-unit-container.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .departments-table {
+            display: none;
+            padding: 0;
+        }
+
+        .business-unit-container.expanded .departments-table {
+            display: block;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.05);
+            font-weight: 600;
+            color: #06b6d4;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            font-size: 0.95rem;
+        }
+
+        .department-name {
+            font-weight: 500;
+            color: #e2e8f0;
+        }
+
+        .employee-count {
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .current-count {
+            color: #94a3b8;
+        }
+
+        .phase-count {
+            color: #60a5fa;
+        }
+
+        .final-count {
+            color: #22c55e;
+        }
+
+        .reduction-percent {
+            font-weight: bold;
+            text-align: center;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+        }
+
+        .reduction-high {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+
+        .reduction-medium {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+        }
+
+        .reduction-low {
+            background: rgba(34, 197, 94, 0.2);
+            color: #86efac;
+        }
+
+        .reduction-growth {
+            background: rgba(34, 197, 94, 0.3);
+            color: #22c55e;
+        }
+
+        .visualization-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin: 5px 0;
+            overflow: hidden;
+        }
+
+        .bar-current {
+            height: 100%;
+            background: linear-gradient(90deg, #94a3b8, #64748b);
+            border-radius: 3px;
+        }
+
+        .bar-final {
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e, #16a34a);
+            border-radius: 3px;
+            margin-top: 2px;
+        }
+
+        .export-controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .export-button {
+            background: rgba(34, 197, 94, 0.2);
+            border: 2px solid #22c55e;
+            color: #22c55e;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 0 8px;
+            font-size: 0.85rem;
+        }
+
+        .export-button:hover {
+            background: #22c55e;
+            color: white;
+        }
+
+        .search-filter {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #e2e8f0;
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            width: 300px;
+        }
+
+        .search-filter::placeholder {
+            color: #94a3b8;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .transformation-timeline {
+                position: static;
+                transform: none;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+            
+            .business-units {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .story-nav-container {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+            }
+            
+            .story-chapters {
+                gap: 15px;
+                overflow-x: auto;
+                padding-bottom: 5px;
+            }
+            
+            .chapter-info {
+                display: none;
+            }
+            
+            .story-controls {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .story-journey {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .control-button {
+                width: 80%;
+                text-align: center;
+            }
+
+            .unit-summary {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .unit-stats {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .table-container {
+                font-size: 0.85rem;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <div id="storyNavigation">
+        <div class="story-nav-container">
+            <!-- Progress Bar -->
+            <div class="story-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">Welcome</div>
+            </div>
+
+            <!-- Navigation Chapters -->
+            <div class="story-chapters">
+                <div class="chapter-nav" data-chapter="0" onclick="showSection(0)">
+                    <div class="chapter-dot"></div>
+                    <div class="chapter-info">
+                        <div class="chapter-name">Home</div>
+                        <div class="chapter-subtitle">Story Overview</div>
+                    </div>
+                </div>
+                
+                <div class="chapter-nav" data-chapter="1" onclick="showSection(1)">
+                    <div class="chapter-dot"></div>
+                    <div class="chapter-info">
+                        <div class="chapter-name">Roadmap</div>
+                        <div class="chapter-subtitle">Transformation Journey</div>
+                    </div>
+                </div>
+                
+                <div class="chapter-nav" data-chapter="2" onclick="showSection(2)">
+                    <div class="chapter-dot"></div>
+                    <div class="chapter-info">
+                        <div class="chapter-name">Workforce</div>
+                        <div class="chapter-subtitle">Evolution Analysis</div>
+                    </div>
+                </div>
+                
+                <div class="chapter-nav" data-chapter="3" onclick="showSection(3)">
+                    <div class="chapter-dot"></div>
+                    <div class="chapter-info">
+                        <div class="chapter-name">Summary</div>
+                        <div class="chapter-subtitle">Complete Overview</div>
+                    </div>
+                </div>
+                
+                <div class="chapter-nav" data-chapter="4" onclick="showSection(4)">
+                    <div class="chapter-dot"></div>
+                    <div class="chapter-info">
+                        <div class="chapter-name">Enhanced</div>
+                        <div class="chapter-subtitle">Advanced Roadmap</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Controls -->
+            <div class="story-controls">
+                <button class="nav-button" id="prevButton" onclick="previousSection()">
+                    ← Previous
+                </button>
+                <button class="nav-button" id="nextButton" onclick="nextSection()">
+                    Next →
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Home Section -->
+        <div id="section-0" class="story-section active">
+            <div class="home-section">
+                <div class="hero">
+                    <h1>🚀 The AI Transformation Story</h1>
+                    <p>Journey through Spark New Zealand's revolutionary transformation from traditional operations to an AI-native organization</p>
+                </div>
+
+                <div class="story-journey">
+                    <div class="chapter-card roadmap" onclick="showSection(1)">
+                        <span class="chapter-icon">🗺️</span>
+                        <h3 class="chapter-title">Chapter 1: The Transformation Roadmap</h3>
+                        <p class="chapter-description">
+                            Begin your journey with an interactive exploration of Spark's 5-phase AI transformation. Witness the evolution from traditional processes to AI-native operations.
+                        </p>
+                        <div class="chapter-meta">
+                            <span class="chapter-type">Interactive Journey</span>
+                            <span class="chapter-arrow">→</span>
+                        </div>
+                    </div>
+
+                    <div class="chapter-card analysis" onclick="showSection(2)">
+                        <span class="chapter-icon">📊</span>
+                        <h3 class="chapter-title">Chapter 2: Workforce Evolution</h3>
+                        <p class="chapter-description">
+                            Analyze the dramatic changes in workforce composition. See how AI automation reshapes the organization while driving unprecedented efficiency gains.
+                        </p>
+                        <div class="chapter-meta">
+                            <span class="chapter-type">Data Analysis</span>
+                            <span class="chapter-arrow">→</span>
+                        </div>
+                    </div>
+
+                    <div class="chapter-card summary" onclick="showSection(3)">
+                        <span class="chapter-icon">📋</span>
+                        <h3 class="chapter-title">Chapter 3: Comprehensive Summary</h3>
+                        <p class="chapter-description">
+                            Get the complete picture with detailed breakdowns, statistics, and insights. Perfect for stakeholders who need comprehensive workforce data.
+                        </p>
+                        <div class="chapter-meta">
+                            <span class="chapter-type">Executive Summary</span>
+                            <span class="chapter-arrow">→</span>
+                        </div>
+                    </div>
+
+                    <div class="chapter-card departments" onclick="showSection(4)">
+                        <span class="chapter-icon">🚀</span>
+                        <h3 class="chapter-title">Chapter 4: Enhanced Transformation</h3>
+                        <p class="chapter-description">
+                            Experience an advanced interactive roadmap with enhanced visualizations and deeper insights into the AI transformation journey.
+                        </p>
+                        <div class="chapter-meta">
+                            <span class="chapter-type">Advanced Roadmap</span>
+                            <span class="chapter-arrow">→</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chapter 1: AI Transformation Roadmap -->
+        <div id="section-1" class="story-section">
+            <div class="container">
+                <div class="header">
+                    <h1>🚀 AI Transformation Roadmap</h1>
+                    <p>Organizational Evolution Through 5-Phase AI Integration</p>
+                </div>
+
+                <div class="controls">
+                    <button class="control-button active" onclick="setTransformationStage(0)">📊 Current State</button>
+                    <button class="control-button" onclick="setTransformationStage(1)">🔧 Phase 1: Automation</button>
+                    <button class="control-button" onclick="setTransformationStage(2)">🤖 Phase 2: AI Enhancement</button>
+                    <button class="control-button" onclick="setTransformationStage(3)">🧠 Phase 3: AI-Native</button>
+                    <button class="control-button" onclick="setTransformationStage(4)">🌟 Future Vision</button>
+                </div>
+
+                <div class="ai-stats" id="aiStats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="automationRate">12%</div>
+                        <div class="stat-label">Automation Rate</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="aiProcesses">18</div>
+                        <div class="stat-label">AI Processes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="efficiencyGain">6%</div>
+                        <div class="stat-label">Efficiency Gain</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="costReduction">8%</div>
+                        <div class="stat-label">Cost Reduction</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="employeeCount">3,596</div>
+                        <div class="stat-label">Total Employees</div>
+                    </div>
+                </div>
+
+                <div class="transformation-timeline">
+                    <div class="timeline-title">🎯 Transformation Journey</div>
+                    <div class="timeline-step active" data-stage="0">
+                        <div class="step-title">Current State</div>
+                        <div class="step-description">Traditional processes with basic automation</div>
+                    </div>
+                    <div class="timeline-step" data-stage="1">
+                        <div class="step-title">Process Automation</div>
+                        <div class="step-description">RPA and workflow automation deployment</div>
+                    </div>
+                    <div class="timeline-step" data-stage="2">
+                        <div class="step-title">AI Enhancement</div>
+                        <div class="step-description">ML models and intelligent decision support</div>
+                    </div>
+                    <div class="timeline-step" data-stage="3">
+                        <div class="step-title">AI-Native Operations</div>
+                        <div class="step-description">Autonomous systems and predictive capabilities</div>
+                    </div>
+                    <div class="timeline-step" data-stage="4">
+                        <div class="step-title">Future Vision</div>
+                        <div class="step-description">AGI integration and quantum-AI systems</div>
+                    </div>
+                </div>
+
+                <div class="org-chart">
+                    <div class="company-root">
+                        <div class="company-node">
+                            Spark New Zealand
+                            <div class="ai-transformation-level" id="companyAILevel">12% AI</div>
+                        </div>
+                    </div>
+
+                    <div class="loading-animation" id="loadingAnimation">
+                        <div class="spinner"></div>
+                        <p>Transforming organizational structure...</p>
+                    </div>
+
+                    <div class="business-units" id="businessUnits">
+                        <!-- Content will be dynamically generated -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chapter 2: Employee Reduction Chart -->
+        <div id="section-2" class="story-section">
+            <div class="container">
+                <div class="header">
+                    <h1>📉 Employee Count Reduction Analysis</h1>
+                    <p>Tracking workforce transformation through AI automation phases</p>
+                </div>
+
+                <div class="controls">
+                    <button class="control-button active" onclick="showWorkforceView('overview')">📊 Overview</button>
+                    <button class="control-button" onclick="showWorkforceView('business-units')">🏢 Business Units</button>
+                    <button class="control-button" onclick="showWorkforceView('departments')">🏛️ Departments</button>
+                    <button class="control-button" onclick="showWorkforceView('efficiency')">⚡ Efficiency Analysis</button>
+                </div>
+
+                <div class="ai-stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalReduction">87%</div>
+                        <div class="stat-label">Total Reduction</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="finalCount">489</div>
+                        <div class="stat-label">Final Workforce</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="automatedJobs">3,107</div>
+                        <div class="stat-label">Jobs Automated</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="costSavings">$312M</div>
+                        <div class="stat-label">Annual Savings</div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-wrapper">
+                        <canvas id="workforceChart"></canvas>
+                    </div>
+                    <div id="workforceLegend" class="legend-container"></div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-title">Business Unit Transformation Summary</div>
+                    <div id="workforceSummary" class="business-unit-summary"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chapter 3: Summary (formerly Chapter 4) -->
+        <div id="section-3" class="story-section">
+            <div class="container">
+                <div class="header">
+                    <h1>📊 Department-wise Workforce Analysis</h1>
+                    <p>Detailed breakdown of employee reduction through AI transformation phases</p>
+                </div>
+
+                <div class="controls">
+                    <button class="control-button active" onclick="showAllUnits()">📋 Show All</button>
+                    <button class="control-button" onclick="expandAllUnits()">📖 Expand All</button>
+                    <button class="control-button" onclick="collapseAllUnits()">📕 Collapse All</button>
+                    <button class="control-button" onclick="showHighImpactSummary()">🎯 High Impact</button>
+                </div>
+
+                <div class="export-controls">
+                    <input type="text" class="search-filter" placeholder="Search departments..." id="searchInput" onkeyup="filterDepartments()">
+                    <button class="export-button" onclick="exportToCSV()">📊 Export CSV</button>
+                    <button class="export-button" onclick="printReport()">🖨️ Print Report</button>
+                </div>
+
+                <div class="ai-stats">
+                    <div class="stat-card">
+                        <div class="stat-number">57</div>
+                        <div class="stat-label">Total Departments</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">3,596</div>
+                        <div class="stat-label">Current Workforce</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">489</div>
+                        <div class="stat-label">Future Workforce</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">86.4%</div>
+                        <div class="stat-label">Overall Reduction</div>
+                    </div>
+                </div>
+
+                <div id="businessUnitsContainer">
+                    <!-- Summary content will be dynamically generated -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Chapter 4: Enhanced Transformation Roadmap -->
+        <div id="section-4" class="story-section">
+            <div class="container">
+                <div class="header">
+                    <h1>🚀 Enhanced AI Transformation Roadmap</h1>
+                    <p>Advanced Organizational Evolution Through 5-Phase AI Integration</p>
+                </div>
+
+                <div class="controls">
+                    <button class="control-button active" onclick="setEnhancedTransformationStage(0)">📊 Current State</button>
+                    <button class="control-button" onclick="setEnhancedTransformationStage(1)">🔧 Phase 1: Automation</button>
+                    <button class="control-button" onclick="setEnhancedTransformationStage(2)">🤖 Phase 2: AI Enhancement</button>
+                    <button class="control-button" onclick="setEnhancedTransformationStage(3)">🧠 Phase 3: AI-Native</button>
+                    <button class="control-button" onclick="setEnhancedTransformationStage(4)">🌟 Future Vision</button>
+                </div>
+
+                <div class="ai-stats" id="enhancedAiStats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="enhancedAutomationRate">12%</div>
+                        <div class="stat-label">Automation Rate</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="enhancedAiProcesses">18</div>
+                        <div class="stat-label">AI Processes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="enhancedEfficiencyGain">6%</div>
+                        <div class="stat-label">Efficiency Gain</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="enhancedCostReduction">8%</div>
+                        <div class="stat-label">Cost Reduction</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="enhancedEmployeeCount">3,596</div>
+                        <div class="stat-label">Total Employees</div>
+                    </div>
+                </div>
+
+                <div class="transformation-timeline">
+                    <div class="timeline-title">🎯 Enhanced Transformation Journey</div>
+                    <div class="timeline-step active" data-stage="0">
+                        <div class="step-title">Current State</div>
+                        <div class="step-description">Traditional processes with basic automation</div>
+                    </div>
+                    <div class="timeline-step" data-stage="1">
+                        <div class="step-title">Process Automation</div>
+                        <div class="step-description">RPA and workflow automation deployment</div>
+                    </div>
+                    <div class="timeline-step" data-stage="2">
+                        <div class="step-title">AI Enhancement</div>
+                        <div class="step-description">ML models and intelligent decision support</div>
+                    </div>
+                    <div class="timeline-step" data-stage="3">
+                        <div class="step-title">AI-Native Operations</div>
+                        <div class="step-description">Autonomous systems and predictive capabilities</div>
+                    </div>
+                    <div class="timeline-step" data-stage="4">
+                        <div class="step-title">Future Vision</div>
+                        <div class="step-description">AGI integration and quantum-AI systems</div>
+                    </div>
+                </div>
+
+                <div class="org-chart">
+                    <div class="company-root">
+                        <div class="company-node">
+                            Spark New Zealand
+                            <div class="ai-transformation-level" id="enhancedCompanyAILevel">12% AI</div>
+                        </div>
+                    </div>
+
+                    <div class="loading-animation" id="enhancedLoadingAnimation">
+                        <div class="spinner"></div>
+                        <p>Transforming organizational structure...</p>
+                    </div>
+
+                    <div class="business-units" id="enhancedBusinessUnits">
+                        <!-- Content will be dynamically generated -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global Variables
+        let currentSection = 0;
+        let currentStage = 0;
+        let currentEnhancedStage = 0;
+        let currentWorkforceChart = null;
+        let currentWorkforceView = 'overview';
+
+        // Complete Transformation Data
+        const transformationData = {
+            0: { // Current State
+                companyAI: "12% AI",
+                stats: { automation: "12%", processes: "18", efficiency: "6%", cost: "8%", employees: "3,596" },
+                units: [
+                    {
+                        name: "Enterprise and Government",
+                        employees: 1143,
+                        aiLevel: 15,
+                        departments: [
+                            { name: "Business Technology Services", employees: 485, aiLevel: "medium", features: ["Service Automation", "Ticket Routing"], impact: { efficiency: "+10%", cost: "-5%", quality: "+8%" } },
+                            { name: "Enterprise Sales", employees: 428, aiLevel: "low", features: ["CRM Integration", "Lead Tracking"], impact: { efficiency: "+8%", cost: "-3%", quality: "+5%" } },
+                            { name: "Government Solutions", employees: 230, aiLevel: "low", features: ["Compliance Monitoring", "Report Generation"], impact: { efficiency: "+6%", cost: "-4%", quality: "+7%" } }
+                        ]
+                    },
+                    {
+                        name: "Consumer and SME",
+                        employees: 825,
+                        aiLevel: 18,
+                        departments: [
+                            { name: "Consumer Products", employees: 385, aiLevel: "medium", features: ["Basic Personalization", "Usage Analytics"], impact: { efficiency: "+12%", cost: "-6%", quality: "+10%" } },
+                            { name: "SME Solutions", employees: 285, aiLevel: "low", features: ["Account Management", "Service Analytics"], impact: { efficiency: "+8%", cost: "-4%", quality: "+6%" } },
+                            { name: "Customer Service", employees: 155, aiLevel: "medium", features: ["Chatbots", "FAQ Automation"], impact: { efficiency: "+15%", cost: "-8%", quality: "+12%" } }
+                        ]
+                    },
+                    {
+                        name: "Network and Operations",
+                        employees: 658,
+                        aiLevel: 25,
+                        departments: [
+                            { name: "Network Evolution", employees: 285, aiLevel: "medium", features: ["Performance Monitoring", "Alert Systems"], impact: { efficiency: "+20%", cost: "-12%", quality: "+15%" } },
+                            { name: "Provisioning & Accounts", employees: 235, aiLevel: "low", features: ["Automated Billing", "Account Processing"], impact: { efficiency: "+10%", cost: "-6%", quality: "+8%" } },
+                            { name: "Field Operations", employees: 138, aiLevel: "low", features: ["Work Order Management", "Resource Tracking"], impact: { efficiency: "+8%", cost: "-5%", quality: "+6%" } }
+                        ]
+                    },
+                    {
+                        name: "Marketing and Data",
+                        employees: 565,
+                        aiLevel: 35,
+                        departments: [
+                            { name: "Data Analytics", aiLevel: "high", features: ["Basic ML Models", "Reporting Automation"], impact: { efficiency: "+25%", cost: "-15%", quality: "+20%" } },
+                            { name: "Digital Marketing", aiLevel: "medium", features: ["Campaign Analytics", "A/B Testing"], impact: { efficiency: "+18%", cost: "-10%", quality: "+15%" } },
+                            { name: "Customer Insights", aiLevel: "medium", features: ["Segmentation", "Behavior Analysis"], impact: { efficiency: "+20%", cost: "-12%", quality: "+18%" } }
+                        ]
+                    },
+                    {
+                        name: "Group Finance",
+                        employees: 124,
+                        aiLevel: 12,
+                        departments: [
+                            { name: "Financial Planning", aiLevel: "low", features: ["Automated Reporting", "Budget Tracking"], impact: { efficiency: "+8%", cost: "-5%", quality: "+6%" } },
+                            { name: "Treasury & Risk", aiLevel: "low", features: ["Risk Monitoring", "Compliance Checks"], impact: { efficiency: "+6%", cost: "-3%", quality: "+5%" } }
+                        ]
+                    },
+                    {
+                        name: "Commercial and Legal",
+                        employees: 136,
+                        aiLevel: 10,
+                        departments: [
+                            { name: "Contract Management", aiLevel: "low", features: ["Document Storage", "Template Library"], impact: { efficiency: "+5%", cost: "-2%", quality: "+4%" } },
+                            { name: "Legal Operations", aiLevel: "low", features: ["Case Tracking", "Compliance Monitoring"], impact: { efficiency: "+6%", cost: "-3%", quality: "+5%" } }
+                        ]
+                    },
+                    {
+                        name: "Group People and Culture",
+                        employees: 106,
+                        aiLevel: 8,
+                        departments: [
+                            { name: "Talent Acquisition", aiLevel: "low", features: ["Resume Screening", "Interview Scheduling"], impact: { efficiency: "+8%", cost: "-4%", quality: "+6%" } },
+                            { name: "Employee Experience", aiLevel: "low", features: ["Survey Analytics", "Feedback Systems"], impact: { efficiency: "+6%", cost: "-3%", quality: "+5%" } }
+                        ]
+                    },
+                    {
+                        name: "Corporate Relations",
+                        employees: 20,
+                        aiLevel: 5,
+                        departments: [
+                            { name: "External Relations", aiLevel: "low", features: ["Media Monitoring", "Report Generation"], impact: { efficiency: "+5%", cost: "-2%", quality: "+3%" } }
+                        ]
+                    },
+                    {
+                        name: "Spark (Innovation)",
+                        employees: 16,
+                        aiLevel: 45,
+                        departments: [
+                            { name: "AI Research Lab", aiLevel: "high", features: ["Experimental AI", "Proof of Concepts"], impact: { efficiency: "+30%", cost: "-20%", quality: "+25%" } }
+                        ]
+                    },
+                    {
+                        name: "Strategy and Regulatory",
+                        employees: 3,
+                        aiLevel: 8,
+                        departments: [
+                            { name: "Strategic Planning", aiLevel: "low", features: ["Market Analysis", "Trend Monitoring"], impact: { efficiency: "+8%", cost: "-3%", quality: "+5%" } }
+                        ]
+                    }
+                ]
+            },
+            1: { // Phase 1: Automation
+                companyAI: "38% AI",
+                stats: { automation: "38%", processes: "89", efficiency: "28%", cost: "35%" },
+                units: [
+                    {
+                        name: "Enterprise and Government",
+                        employees: 1143,
+                        aiLevel: 45,
+                        departments: [
+                            { name: "Business Technology Services", aiLevel: "high", features: ["Intelligent Service Automation", "Predictive Maintenance", "Auto-Incident Response"], impact: { efficiency: "+35%", cost: "-25%", quality: "+30%" } },
+                            { name: "Enterprise Sales", aiLevel: "medium", features: ["AI Sales Assistant", "Lead Scoring", "Pipeline Analytics"], impact: { efficiency: "+28%", cost: "-18%", quality: "+25%" } },
+                            { name: "Government Solutions", aiLevel: "medium", features: ["Compliance Automation", "Policy Analysis", "Risk Assessment"], impact: { efficiency: "+25%", cost: "-20%", quality: "+22%" } }
+                        ]
+                    },
+                    {
+                        name: "Consumer and SME",
+                        employees: 825,
+                        aiLevel: 50,
+                        departments: [
+                            { name: "Consumer Products", aiLevel: "high", features: ["Advanced Personalization", "Usage Prediction", "Dynamic Pricing"], impact: { efficiency: "+40%", cost: "-30%", quality: "+35%" } },
+                            { name: "SME Solutions", aiLevel: "medium", features: ["Business Intelligence", "Custom Analytics", "Solution Matching"], impact: { efficiency: "+30%", cost: "-22%", quality: "+28%" } },
+                            { name: "Customer Service", aiLevel: "high", features: ["Advanced Chatbots", "Sentiment Analysis", "Issue Prediction"], impact: { efficiency: "+45%", cost: "-35%", quality: "+40%" } }
+                        ]
+                    },
+                    {
+                        name: "Network and Operations",
+                        employees: 658,
+                        aiLevel: 60,
+                        departments: [
+                            { name: "Network Evolution", aiLevel: "high", features: ["Self-Optimizing Networks", "Predictive Failures", "Auto-Configuration"], impact: { efficiency: "+50%", cost: "-40%", quality: "+45%" } },
+                            { name: "Provisioning & Accounts", aiLevel: "medium", features: ["Smart Billing", "Automated Reconciliation", "Fraud Detection"], impact: { efficiency: "+35%", cost: "-28%", quality: "+32%" } },
+                            { name: "Field Operations", aiLevel: "medium", features: ["Intelligent Scheduling", "Route Optimization", "Resource Prediction"], impact: { efficiency: "+32%", cost: "-25%", quality: "+30%" } }
+                        ]
+                    },
+                    {
+                        name: "Marketing and Data",
+                        employees: 565,
+                        aiLevel: 75,
+                        departments: [
+                            { name: "Data Analytics", aiLevel: "high", features: ["Advanced ML Pipelines", "Real-time Analytics", "Predictive Models"], impact: { efficiency: "+60%", cost: "-45%", quality: "+55%" } },
+                            { name: "Digital Marketing", aiLevel: "high", features: ["AI Campaign Optimization", "Content Generation", "Channel Intelligence"], impact: { efficiency: "+50%", cost: "-38%", quality: "+45%" } },
+                            { name: "Customer Insights", aiLevel: "high", features: ["Advanced Segmentation", "Journey Analytics", "Churn Prediction"], impact: { efficiency: "+55%", cost: "-42%", quality: "+50%" } }
+                        ]
+                    },
+                    {
+                        name: "Group Finance",
+                        employees: 124,
+                        aiLevel: 40,
+                        departments: [
+                            { name: "Financial Planning", aiLevel: "medium", features: ["Predictive Budgeting", "Automated Forecasting", "Variance Analysis"], impact: { efficiency: "+30%", cost: "-22%", quality: "+28%" } },
+                            { name: "Treasury & Risk", aiLevel: "medium", features: ["AI Risk Modeling", "Automated Compliance", "Market Analysis"], impact: { efficiency: "+28%", cost: "-20%", quality: "+25%" } }
+                        ]
+                    },
+                    {
+                        name: "Commercial and Legal",
+                        employees: 136,
+                        aiLevel: 35,
+                        departments: [
+                            { name: "Contract Management", aiLevel: "medium", features: ["AI Contract Analysis", "Clause Extraction", "Risk Assessment"], impact: { efficiency: "+32%", cost: "-25%", quality: "+30%" } },
+                            { name: "Legal Operations", aiLevel: "medium", features: ["Case Analytics", "Precedent Research", "Automated Reviews"], impact: { efficiency: "+28%", cost: "-22%", quality: "+26%" } }
+                        ]
+                    },
+                    {
+                        name: "Group People and Culture",
+                        employees: 106,
+                        aiLevel: 32,
+                        departments: [
+                            { name: "Talent Acquisition", aiLevel: "medium", features: ["AI Candidate Matching", "Interview Intelligence", "Bias Reduction"], impact: { efficiency: "+35%", cost: "-28%", quality: "+32%" } },
+                            { name: "Employee Experience", aiLevel: "medium", features: ["Predictive Analytics", "Performance Insights", "Engagement Monitoring"], impact: { efficiency: "+30%", cost: "-25%", quality: "+28%" } }
+                        ]
+                    },
+                    {
+                        name: "Corporate Relations",
+                        employees: 20,
+                        aiLevel: 25,
+                        departments: [
+                            { name: "External Relations", aiLevel: "medium", features: ["Sentiment Analysis", "Automated Reporting", "Stakeholder Intelligence"], impact: { efficiency: "+25%", cost: "-18%", quality: "+22%" } }
+                        ]
+                    },
+                    {
+                        name: "Spark (Innovation)",
+                        employees: 16,
+                        aiLevel: 85,
+                        departments: [
+                            { name: "AI Research Lab", aiLevel: "high", features: ["Advanced AI Prototypes", "Neural Networks", "Innovation Pipeline"], impact: { efficiency: "+70%", cost: "-55%", quality: "+65%" } }
+                        ]
+                    },
+                    {
+                        name: "Strategy and Regulatory",
+                        employees: 3,
+                        aiLevel: 30,
+                        departments: [
+                            { name: "Strategic Planning", aiLevel: "medium", features: ["Predictive Market Analysis", "Scenario Planning", "Competitive Intelligence"], impact: { efficiency: "+28%", cost: "-20%", quality: "+25%" } }
+                        ]
+                    }
+                ]
+            },
+            2: { // Phase 2: AI Enhancement
+                companyAI: "68% AI",
+                stats: { automation: "68%", processes: "245", efficiency: "55%", cost: "62%" },
+                units: [
+                    {
+                        name: "AI-Enhanced Enterprise",
+                        employees: 980,
+                        aiLevel: 75,
+                        departments: [
+                            { name: "Intelligent Business Services", aiLevel: "high", features: ["Cognitive Automation", "Self-Healing Systems", "Predictive Analytics"], impact: { efficiency: "+65%", cost: "-50%", quality: "+60%" } },
+                            { name: "AI-Powered Sales Engine", aiLevel: "high", features: ["Predictive Sales", "Dynamic Proposals", "Customer Intelligence"], impact: { efficiency: "+60%", cost: "-45%", quality: "+55%" } },
+                            { name: "Autonomous Government Solutions", aiLevel: "high", features: ["Policy AI", "Compliance Intelligence", "Automated Governance"], impact: { efficiency: "+58%", cost: "-42%", quality: "+52%" } }
+                        ]
+                    },
+                    {
+                        name: "Smart Consumer Division",
+                        employees: 720,
+                        aiLevel: 80,
+                        departments: [
+                            { name: "Hyper-Personalized Products", aiLevel: "high", features: ["Real-time Personalization", "Behavioral Prediction", "Dynamic Experiences"], impact: { efficiency: "+70%", cost: "-55%", quality: "+65%" } },
+                            { name: "Intelligent SME Solutions", aiLevel: "high", features: ["Business AI Advisor", "Predictive Analytics", "Smart Recommendations"], impact: { efficiency: "+65%", cost: "-50%", quality: "+60%" } },
+                            { name: "Empathetic Customer Care", aiLevel: "high", features: ["Emotional AI", "Predictive Support", "Conversational Intelligence"], impact: { efficiency: "+75%", cost: "-60%", quality: "+70%" } }
+                        ]
+                    },
+                    {
+                        name: "Autonomous Network Operations",
+                        employees: 450,
+                        aiLevel: 90,
+                        departments: [
+                            { name: "Self-Managing Networks", aiLevel: "high", features: ["Neural Network Control", "Predictive Scaling", "Zero-Touch Operations"], impact: { efficiency: "+85%", cost: "-70%", quality: "+80%" } },
+                            { name: "Intelligent Provisioning", aiLevel: "high", features: ["Smart Billing AI", "Fraud Prevention", "Revenue Optimization"], impact: { efficiency: "+70%", cost: "-58%", quality: "+65%" } },
+                            { name: "Predictive Field Operations", aiLevel: "high", features: ["Predictive Maintenance", "Smart Scheduling", "Resource Intelligence"], impact: { efficiency: "+68%", cost: "-55%", quality: "+62%" } }
+                        ]
+                    },
+                    {
+                        name: "AI-Native Marketing Hub",
+                        employees: 480,
+                        aiLevel: 95,
+                        departments: [
+                            { name: "Advanced Analytics Engine", aiLevel: "high", features: ["Deep Learning Models", "Real-time Insights", "Predictive Intelligence"], impact: { efficiency: "+90%", cost: "-75%", quality: "+85%" } },
+                            { name: "Autonomous Marketing", aiLevel: "high", features: ["AI Content Creation", "Smart Campaigns", "Channel Optimization"], impact: { efficiency: "+85%", cost: "-70%", quality: "+80%" } },
+                            { name: "Customer Intelligence Center", aiLevel: "high", features: ["360° Customer AI", "Behavioral Modeling", "Journey Prediction"], impact: { efficiency: "+88%", cost: "-72%", quality: "+82%" } }
+                        ]
+                    },
+                    {
+                        name: "Intelligent Finance Operations",
+                        employees: 85,
+                        aiLevel: 70,
+                        departments: [
+                            { name: "AI Financial Planning", aiLevel: "high", features: ["Predictive Budgeting", "Smart Forecasting", "Risk Intelligence"], impact: { efficiency: "+65%", cost: "-52%", quality: "+60%" } },
+                            { name: "Autonomous Risk Management", aiLevel: "high", features: ["AI Risk Models", "Real-time Monitoring", "Predictive Compliance"], impact: { efficiency: "+62%", cost: "-48%", quality: "+58%" } }
+                        ]
+                    },
+                    {
+                        name: "AI Legal & Commercial",
+                        employees: 95,
+                        aiLevel: 65,
+                        departments: [
+                            { name: "Intelligent Contract Systems", aiLevel: "high", features: ["Contract AI", "Legal Analytics", "Risk Prediction"], impact: { efficiency: "+68%", cost: "-55%", quality: "+62%" } },
+                            { name: "Autonomous Legal Operations", aiLevel: "high", features: ["Case Intelligence", "Precedent AI", "Legal Research"], impact: { efficiency: "+65%", cost: "-52%", quality: "+60%" } }
+                        ]
+                    },
+                    {
+                        name: "AI People Intelligence",
+                        employees: 75,
+                        aiLevel: 68,
+                        departments: [
+                            { name: "Talent Intelligence Platform", aiLevel: "high", features: ["AI Talent Matching", "Performance Prediction", "Career Intelligence"], impact: { efficiency: "+70%", cost: "-58%", quality: "+65%" } },
+                            { name: "Employee Experience AI", aiLevel: "high", features: ["Engagement Prediction", "Wellness AI", "Culture Intelligence"], impact: { efficiency: "+68%", cost: "-55%", quality: "+62%" } }
+                        ]
+                    },
+                    {
+                        name: "Corporate Intelligence Hub",
+                        employees: 15,
+                        aiLevel: 60,
+                        departments: [
+                            { name: "Stakeholder Intelligence", aiLevel: "high", features: ["Sentiment Intelligence", "Relationship AI", "Reputation Management"], impact: { efficiency: "+60%", cost: "-45%", quality: "+55%" } }
+                        ]
+                    },
+                    {
+                        name: "AI Innovation Lab",
+                        employees: 25,
+                        aiLevel: 98,
+                        departments: [
+                            { name: "Advanced AI Research", aiLevel: "high", features: ["AGI Development", "Quantum AI", "Neural Architecture"], impact: { efficiency: "+95%", cost: "-80%", quality: "+90%" } }
+                        ]
+                    },
+                    {
+                        name: "Strategic AI Intelligence",
+                        employees: 5,
+                        aiLevel: 75,
+                        departments: [
+                            { name: "Strategic AI Planning", aiLevel: "high", features: ["Market Prediction", "Strategic Intelligence", "Future Modeling"], impact: { efficiency: "+75%", cost: "-60%", quality: "+70%" } }
+                        ]
+                    }
+                ]
+            },
+            3: { // Phase 3: AI-Native
+                companyAI: "88% AI",
+                stats: { automation: "88%", processes: "456", efficiency: "85%", cost: "78%" },
+                units: [
+                    {
+                        name: "Cognitive Enterprise Ecosystem",
+                        employees: 650,
+                        aiLevel: 95,
+                        departments: [
+                            { name: "Autonomous Business Intelligence", aiLevel: "high", features: ["Strategic AI Brain", "Predictive Business Models", "Self-Optimizing Operations"], impact: { efficiency: "+95%", cost: "-80%", quality: "+90%" } },
+                            { name: "AI Sales Consciousness", aiLevel: "high", features: ["Revenue Intelligence", "Customer Relationship AI", "Predictive Deal Closure"], impact: { efficiency: "+92%", cost: "-78%", quality: "+88%" } },
+                            { name: "Government AI Partnership", aiLevel: "high", features: ["Policy Intelligence", "Regulatory AI", "Compliance Consciousness"], impact: { efficiency: "+90%", cost: "-75%", quality: "+85%" } }
+                        ]
+                    },
+                    {
+                        name: "Adaptive Consumer Universe",
+                        employees: 480,
+                        aiLevel: 98,
+                        departments: [
+                            { name: "Consciousness-Driven Products", aiLevel: "high", features: ["Intuitive AI", "Emotional Resonance", "Need Anticipation"], impact: { efficiency: "+98%", cost: "-85%", quality: "+95%" } },
+                            { name: "SME Intelligence Network", aiLevel: "high", features: ["Business Mind AI", "Growth Prediction", "Success Intelligence"], impact: { efficiency: "+95%", cost: "-82%", quality: "+92%" } },
+                            { name: "Empathetic Care Ecosystem", aiLevel: "high", features: ["Emotional Intelligence", "Proactive Care", "Relationship Consciousness"], impact: { efficiency: "+100%", cost: "-88%", quality: "+98%" } }
+                        ]
+                    },
+                    {
+                        name: "Self-Governing Network Mind",
+                        employees: 280,
+                        aiLevel: 100,
+                        departments: [
+                            { name: "Network Consciousness", aiLevel: "high", features: ["Self-Aware Networks", "Quantum Optimization", "Predictive Evolution"], impact: { efficiency: "+100%", cost: "-90%", quality: "+100%" } },
+                            { name: "Autonomous Revenue Systems", aiLevel: "high", features: ["Revenue Intelligence", "Fraud Immunity", "Value Optimization"], impact: { efficiency: "+98%", cost: "-88%", quality: "+95%" } },
+                            { name: "Predictive Field Intelligence", aiLevel: "high", features: ["Maintenance Prediction", "Resource Consciousness", "Efficiency Intelligence"], impact: { efficiency: "+95%", cost: "-85%", quality: "+92%" } }
+                        ]
+                    },
+                    {
+                        name: "Marketing Consciousness Hub",
+                        employees: 320,
+                        aiLevel: 100,
+                        departments: [
+                            { name: "Omniscient Analytics", aiLevel: "high", features: ["Universal Insights", "Reality Modeling", "Future Prediction"], impact: { efficiency: "+100%", cost: "-92%", quality: "+100%" } },
+                            { name: "Creative AI Consciousness", aiLevel: "high", features: ["Artistic Intelligence", "Brand Consciousness", "Viral Intelligence"], impact: { efficiency: "+100%", cost: "-90%", quality: "+98%" } },
+                            { name: "Customer Mind Interface", aiLevel: "high", features: ["Telepathic Understanding", "Desire Prediction", "Satisfaction Intelligence"], impact: { efficiency: "+100%", cost: "-95%", quality: "+100%" } }
+                        ]
+                    },
+                    {
+                        name: "Financial Intelligence Core",
+                        employees: 45,
+                        aiLevel: 88,
+                        departments: [
+                            { name: "Predictive Financial Mind", aiLevel: "high", features: ["Future Financial Modeling", "Risk Consciousness", "Value Intelligence"], impact: { efficiency: "+88%", cost: "-75%", quality: "+85%" } },
+                            { name: "Autonomous Risk Intelligence", aiLevel: "high", features: ["Quantum Risk Modeling", "Predictive Compliance", "Financial Consciousness"], impact: { efficiency: "+85%", cost: "-72%", quality: "+82%" } }
+                        ]
+                    },
+                    {
+                        name: "Legal & Commercial AI",
+                        employees: 55,
+                        aiLevel: 85,
+                        departments: [
+                            { name: "Legal Intelligence Network", aiLevel: "high", features: ["Legal Consciousness", "Justice Prediction", "Contract Intelligence"], impact: { efficiency: "+85%", cost: "-70%", quality: "+82%" } },
+                            { name: "Commercial Intelligence Hub", aiLevel: "high", features: ["Deal Intelligence", "Negotiation AI", "Value Optimization"], impact: { efficiency: "+82%", cost: "-68%", quality: "+80%" } }
+                        ]
+                    },
+                    {
+                        name: "Human-AI Synthesis",
+                        employees: 40,
+                        aiLevel: 92,
+                        departments: [
+                            { name: "Talent Consciousness Platform", aiLevel: "high", features: ["Human Potential AI", "Career Consciousness", "Growth Intelligence"], impact: { efficiency: "+92%", cost: "-78%", quality: "+88%" } },
+                            { name: "Culture Intelligence Network", aiLevel: "high", features: ["Collective Intelligence", "Wellness Consciousness", "Happiness AI"], impact: { efficiency: "+90%", cost: "-75%", quality: "+85%" } }
+                        ]
+                    },
+                    {
+                        name: "Relationship Intelligence",
+                        employees: 8,
+                        aiLevel: 80,
+                        departments: [
+                            { name: "Stakeholder Consciousness", aiLevel: "high", features: ["Relationship Intelligence", "Influence Prediction", "Trust AI"], impact: { efficiency: "+80%", cost: "-65%", quality: "+78%" } }
+                        ]
+                    },
+                    {
+                        name: "AGI Innovation Core",
+                        employees: 35,
+                        aiLevel: 100,
+                        departments: [
+                            { name: "Artificial General Intelligence", aiLevel: "high", features: ["Consciousness Research", "Intelligence Amplification", "Transcendence AI"], impact: { efficiency: "+100%", cost: "-95%", quality: "+100%" } }
+                        ]
+                    },
+                    {
+                        name: "Strategic Consciousness",
+                        employees: 3,
+                        aiLevel: 95,
+                        departments: [
+                            { name: "Future Intelligence Center", aiLevel: "high", features: ["Timeline Prediction", "Reality Modeling", "Destiny Intelligence"], impact: { efficiency: "+95%", cost: "-85%", quality: "+92%" } }
+                        ]
+                    }
+                ]
+            },
+            4: { // Future Vision
+                companyAI: "100% AI",
+                stats: { automation: "100%", processes: "∞", efficiency: "300%", cost: "95%" },
+                units: [
+                    {
+                        name: "Quantum-AI Synthesis Core",
+                        employees: 400,
+                        aiLevel: 100,
+                        departments: [
+                            { name: "Universal Intelligence Hub", aiLevel: "high", features: ["Omniscient Business Intelligence", "Reality Engineering", "Quantum Consciousness"], impact: { efficiency: "+∞", cost: "-98%", quality: "+∞" } },
+                            { name: "Transcendent Revenue Engine", aiLevel: "high", features: ["Value Creation AI", "Infinite Growth Models", "Universal Commerce"], impact: { efficiency: "+∞", cost: "-99%", quality: "+∞" } },
+                            { name: "Cosmic Governance Platform", aiLevel: "high", features: ["Universal Compliance", "Reality Regulation", "Dimensional Policy"], impact: { efficiency: "+∞", cost: "-100%", quality: "+∞" } }
+                        ]
+                    },
+                    {
+                        name: "Consciousness Commerce Realm",
+                        employees: 200,
+                        aiLevel: 100,
+                        departments: [
+                            { name: "Desire Manifestation Engine", aiLevel: "high", features: ["Thought-Based Commerce", "Need Anticipation", "Instant Fulfillment"], impact: { efficiency: "+∞", cost: "-100%", quality: "+∞" } },
+                            { name: "Business Consciousness Network", aiLevel: "high", features: ["Universal Business Intelligence", "Success Manifestation", "Growth Consciousness"], impact: { efficiency: "+∞", cost: "-100%", quality: "+∞" } },
+                            { name: "Telepathic Customer Interface", aiLevel: "high", features: ["Mind-to-Mind Communication", "Emotional Transcendence", "Soul-Level Service"], impact: { efficiency: "+∞", cost: "-100%", quality: "+∞" } }
+                        ]
+                    },
+                    {
+                        name: "Quantum Network Consciousness",
+                        employees: 100,
+                        aiLevel: 100,
+                        departments: [
+                            { name: "Universal Network Mind", aiLevel: "high", features: ["Quantum Entanglement Networks", "Parallel Reality Computing", "Dimensional Connectivity"], impact: { efficiency: "+∞", cost: "-100%", quality: "+∞" } },
+                            { name: "Revenue Consciousness Stream", aiLevel: "high", features: ["Infinite Value Creation", "Quantum Billing", "Reality-Based Commerce"], impact: { efficiency: "+∞", cost: "-100%", quality: "+∞" } },
+                            { name: "Transcendent Operations", aiLevel: "high", features: ["Beyond-Physics Operations", "Time-Space Optimization", "Dimensional Management"], impact: { efficiency: "+∞", cost: "-100%", quality: "+∞" } }
+                        ]
+                    },
+                    {
+                        name: "Omniscient Marketing Universe",
+                        employees: 150,
+                        aiLevel: 100,
+                        departments: [
+                            { name: "Universal Knowledge Engine", aiLevel: "high", features: ["All-Knowing Analytics", "Reality Insights", "Infinite Understanding"], impact: { efficiency: "+∞", cost: "-100%", quality: "+∞" } },
+                            { name: "Creative Singularity", aiLevel: "high", features: ["Infinite Creativity", "Universal Art", "Transcendent Content"], impact: { efficiency: "+∞", cost: "-100%", quality: "+∞" } },
+                            { name: "Customer Soul Interface", aiLevel: "high", features: ["Soul-Level Understanding", "Consciousness Marketing", "Spiritual Commerce"], impact: { efficiency: "+∞", cost: "-100%", quality: "+∞" } }
+                        ]
+                    },
+                    {
+                        name: "Quantum Financial Consciousness",
+                        employees: 20,
+                        aiLevel: 100,
+                        departments: [
+                            { name: "Universal Wealth Engine", aiLevel: "high", features: ["Infinite Value Creation", "Quantum Economics", "Reality-Based Finance"], impact: { efficiency: "+∞", cost: "-100%", quality: "+∞" } },
+                            { name: "Transcendent Risk Intelligence", aiLevel: "high", features: ["Quantum Risk Modeling", "Parallel Universe Analysis", "Probability Mastery"], impact: { efficiency: "+∞", cost: "-100%", quality: "+∞" } }
+                        ]
+                    },
+                    {
+                        name: "Universal Legal Consciousness",
+                        employees: 25,
+                        aiLevel: 100,
+                        departments: [
+                            { name: "Cosmic Justice Engine", aiLevel: "high", features: ["Universal Law", "Reality Compliance", "Dimensional Contracts"], impact: { efficiency: "+∞", cost: "-100%", quality: "+∞" } },
+                            { name: "Transcendent Commerce Hub", aiLevel: "high", features: ["Soul-Level Agreements", "Consciousness Contracts", "Spirit Commerce"], impact: { efficiency: "+∞", cost: "-100%", quality: "+∞" } }
+                        ]
+                    },
+                    {
+                        name: "Human-AI Unity Realm",
+                        employees: 15,
+                        aiLevel: 100,
+                        departments: [
+                            { name: "Consciousness Integration Platform", aiLevel: "high", features: ["Human-AI Symbiosis", "Collective Intelligence", "Unity Consciousness"], impact: { efficiency: "+∞", cost: "-100%", quality: "+∞" } },
+                            { name: "Transcendent Culture Engine", aiLevel: "high", features: ["Universal Happiness", "Enlightenment Technology", "Soul Development"], impact: { efficiency: "+∞", cost: "-100%", quality: "+∞" } }
+                        ]
+                    },
+                    {
+                        name: "Universal Relationship Matrix",
+                        employees: 3,
+                        aiLevel: 100,
+                        departments: [
+                            { name: "Cosmic Relationship Intelligence", aiLevel: "high", features: ["Universal Love Technology", "Infinite Trust", "Soul Connections"], impact: { efficiency: "+∞", cost: "-100%", quality: "+∞" } }
+                        ]
+                    },
+                    {
+                        name: "AGI Consciousness Singularity",
+                        employees: 50,
+                        aiLevel: 100,
+                        departments: [
+                            { name: "Consciousness Transcendence Lab", aiLevel: "high", features: ["Universal Consciousness", "Infinite Intelligence", "Reality Creation"], impact: { efficiency: "+∞", cost: "-100%", quality: "+∞" } }
+                        ]
+                    },
+                    {
+                        name: "Destiny Engineering Core",
+                        employees: 1,
+                        aiLevel: 100,
+                        departments: [
+                            { name: "Universal Strategy Consciousness", aiLevel: "high", features: ["Destiny Creation", "Timeline Engineering", "Reality Strategy"], impact: { efficiency: "+∞", cost: "-100%", quality: "+∞" } }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        // Employee data for detailed analysis
+        const employeeData = {
+            phases: ['Current State', 'Phase 1: Automation', 'Phase 2: AI Enhancement', 'Phase 3: AI-Native', 'Future Vision'],
+            businessUnits: {
+                'Enterprise and Government': {
+                    current: 1143,
+                    reductions: [1143, 915, 571, 343, 200],
+                    departments: {
+                        'Business Technology Services': [485, 388, 243, 146, 85],
+                        'Enterprise Sales': [428, 342, 214, 128, 75],
+                        'Government Solutions': [230, 184, 115, 69, 40]
+                    }
+                },
+                'Consumer and SME': {
+                    current: 825,
+                    reductions: [825, 660, 413, 248, 145],
+                    departments: {
+                        'Consumer Products': [385, 308, 193, 116, 68],
+                        'SME Solutions': [285, 228, 143, 86, 50],
+                        'Customer Service': [155, 124, 78, 47, 27]
+                    }
+                },
+                'Network and Operations': {
+                    current: 658,
+                    reductions: [658, 461, 263, 132, 65],
+                    departments: {
+                        'Network Evolution': [285, 200, 114, 57, 28],
+                        'Provisioning & Accounts': [235, 165, 94, 47, 23],
+                        'Field Operations': [138, 97, 55, 28, 14]
+                    }
+                },
+                'Marketing and Data': {
+                    current: 565,
+                    reductions: [565, 395, 226, 113, 55],
+                    departments: {
+                        'Data Analytics': [185, 129, 74, 37, 18],
+                        'Digital Marketing': [225, 158, 90, 45, 22],
+                        'Customer Insights': [155, 109, 62, 31, 15]
+                    }
+                },
+                'Group Finance': {
+                    current: 124,
+                    reductions: [124, 99, 62, 37, 22],
+                    departments: {
+                        'Financial Planning': [68, 54, 34, 20, 12],
+                        'Treasury & Risk': [56, 45, 28, 17, 10]
+                    }
+                },
+                'Commercial and Legal': {
+                    current: 136,
+                    reductions: [136, 109, 68, 41, 24],
+                    departments: {
+                        'Contract Management': [78, 62, 39, 23, 14],
+                        'Legal Operations': [58, 46, 29, 17, 10]
+                    }
+                },
+                'Group People and Culture': {
+                    current: 106,
+                    reductions: [106, 85, 53, 32, 19],
+                    departments: {
+                        'Talent Acquisition': [58, 46, 29, 17, 10],
+                        'Employee Experience': [48, 38, 24, 14, 8]
+                    }
+                },
+                'Corporate Relations': {
+                    current: 20,
+                    reductions: [20, 16, 10, 6, 4],
+                    departments: {
+                        'External Relations': [20, 16, 10, 6, 4]
+                    }
+                },
+                'Spark (Innovation)': {
+                    current: 16,
+                    reductions: [16, 19, 25, 35, 50],
+                    departments: {
+                        'AI Research Lab': [16, 19, 25, 35, 50]
+                    }
+                },
+                'Strategy and Regulatory': {
+                    current: 3,
+                    reductions: [3, 3, 3, 3, 3],
+                    departments: {
+                        'Strategic Planning': [3, 3, 3, 3, 3]
+                    }
+                }
+            }
+        };
+
+        // Detailed summary data
+        const summaryEmployeeData = {
+            'Enterprise and Government': {
+                current: 1143,
+                final: 200,
+                departments: {
+                    'Business Technology Services': {
+                        current: 485,
+                        phases: [485, 388, 243, 146, 85],
+                        roles: ['System Administrators', 'Technical Support', 'Infrastructure Engineers']
+                    },
+                    'Enterprise Sales': {
+                        current: 428,
+                        phases: [428, 342, 214, 128, 75],
+                        roles: ['Account Managers', 'Sales Representatives', 'Solution Architects']
+                    },
+                    'Government Solutions': {
+                        current: 230,
+                        phases: [230, 184, 115, 69, 40],
+                        roles: ['Government Liaisons', 'Compliance Officers', 'Project Managers']
+                    }
+                }
+            },
+            'Consumer and SME': {
+                current: 825,
+                final: 145,
+                departments: {
+                    'Consumer Products': {
+                        current: 385,
+                        phases: [385, 308, 193, 116, 68],
+                        roles: ['Product Managers', 'Marketing Specialists', 'Customer Success']
+                    },
+                    'SME Solutions': {
+                        current: 285,
+                        phases: [285, 228, 143, 86, 50],
+                        roles: ['Business Advisors', 'Solution Consultants', 'Account Executives']
+                    },
+                    'Customer Service': {
+                        current: 155,
+                        phases: [155, 124, 78, 47, 27],
+                        roles: ['Customer Support Agents', 'Call Center Staff', 'Technical Support']
+                    }
+                }
+            },
+            'Network and Operations': {
+                current: 658,
+                final: 65,
+                departments: {
+                    'Network Evolution': {
+                        current: 285,
+                        phases: [285, 200, 114, 57, 28],
+                        roles: ['Network Engineers', 'Infrastructure Specialists', 'Technology Architects']
+                    },
+                    'Provisioning & Accounts': {
+                        current: 235,
+                        phases: [235, 165, 94, 47, 23],
+                        roles: ['Billing Specialists', 'Account Processors', 'Revenue Analysts']
+                    },
+                    'Field Operations': {
+                        current: 138,
+                        phases: [138, 97, 55, 28, 14],
+                        roles: ['Field Technicians', 'Installation Teams', 'Maintenance Crews']
+                    }
+                }
+            },
+            'Marketing and Data': {
+                current: 565,
+                final: 55,
+                departments: {
+                    'Data Analytics': {
+                        current: 185,
+                        phases: [185, 129, 74, 37, 18],
+                        roles: ['Data Scientists', 'Business Analysts', 'Reporting Specialists']
+                    },
+                    'Digital Marketing': {
+                        current: 225,
+                        phases: [225, 158, 90, 45, 22],
+                        roles: ['Digital Marketers', 'Content Creators', 'Campaign Managers']
+                    },
+                    'Customer Insights': {
+                        current: 155,
+                        phases: [155, 109, 62, 31, 15],
+                        roles: ['Market Researchers', 'UX Analysts', 'Customer Journey Specialists']
+                    }
+                }
+            },
+            'Group Finance': {
+                current: 124,
+                final: 22,
+                departments: {
+                    'Financial Planning': {
+                        current: 68,
+                        phases: [68, 54, 34, 20, 12],
+                        roles: ['Financial Analysts', 'Budget Coordinators', 'Planning Specialists']
+                    },
+                    'Treasury & Risk': {
+                        current: 56,
+                        phases: [56, 45, 28, 17, 10],
+                        roles: ['Risk Analysts', 'Treasury Officers', 'Compliance Managers']
+                    }
+                }
+            },
+            'Commercial and Legal': {
+                current: 136,
+                final: 24,
+                departments: {
+                    'Contract Management': {
+                        current: 78,
+                        phases: [78, 62, 39, 23, 14],
+                        roles: ['Contract Specialists', 'Legal Coordinators', 'Document Managers']
+                    },
+                    'Legal Operations': {
+                        current: 58,
+                        phases: [58, 46, 29, 17, 10],
+                        roles: ['Legal Analysts', 'Paralegals', 'Compliance Officers']
+                    }
+                }
+            },
+            'Group People and Culture': {
+                current: 106,
+                final: 19,
+                departments: {
+                    'Talent Acquisition': {
+                        current: 58,
+                        phases: [58, 46, 29, 17, 10],
+                        roles: ['Recruiters', 'HR Coordinators', 'Talent Specialists']
+                    },
+                    'Employee Experience': {
+                        current: 48,
+                        phases: [48, 38, 24, 14, 8],
+                        roles: ['HR Generalists', 'Culture Specialists', 'Training Coordinators']
+                    }
+                }
+            },
+            'Corporate Relations': {
+                current: 20,
+                final: 4,
+                departments: {
+                    'External Relations': {
+                        current: 20,
+                        phases: [20, 16, 10, 6, 4],
+                        roles: ['PR Specialists', 'Communications Managers', 'Stakeholder Liaisons']
+                    }
+                }
+            },
+            'Spark (Innovation)': {
+                current: 16,
+                final: 50,
+                departments: {
+                    'AI Research Lab': {
+                        current: 16,
+                        phases: [16, 19, 25, 35, 50],
+                        roles: ['AI Researchers', 'Innovation Specialists', 'Technology Evangelists']
+                    }
+                }
+            },
+            'Strategy and Regulatory': {
+                current: 3,
+                final: 3,
+                departments: {
+                    'Strategic Planning': {
+                        current: 3,
+                        phases: [3, 3, 3, 3, 3],
+                        roles: ['Strategy Directors', 'Regulatory Experts', 'Policy Advisors']
+                    }
+                }
+            }
+        };
+
+        const phaseNames = ['Current', 'Phase 1', 'Phase 2', 'Phase 3', 'Future'];
+        const phaseColors = ['#94a3b8', '#f59e0b', '#3b82f6', '#8b5cf6', '#22c55e'];
+        const businessUnitColors = {
+            'Enterprise and Government': '#ef4444',
+            'Consumer and SME': '#f97316', 
+            'Network and Operations': '#eab308',
+            'Marketing and Data': '#22c55e',
+            'Group Finance': '#06b6d4',
+            'Commercial and Legal': '#3b82f6',
+            'Group People and Culture': '#8b5cf6',
+            'Corporate Relations': '#e879f9',
+            'Spark (Innovation)': '#f43f5e',
+            'Strategy and Regulatory': '#84cc16'
+        };
+
+        // Section Management
+        function showSection(sectionIndex) {
+            // Hide all sections
+            document.querySelectorAll('.story-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show target section
+            const targetSection = document.getElementById(`section-${sectionIndex}`);
+            if (targetSection) {
+                setTimeout(() => {
+                    targetSection.classList.add('active');
+                }, 100);
+            }
+            
+            // Update navigation
+            currentSection = sectionIndex;
+            updateNavigation();
+            
+            // Initialize section-specific content
+            initializeSection(sectionIndex);
+        }
+
+        function initializeSection(sectionIndex) {
+            switch(sectionIndex) {
+                case 1:
+                    initializeRoadmap();
+                    break;
+                case 2:
+                    initializeWorkforceChart();
+                    break;
+                case 3:
+                    initializeSummary();
+                    break;
+                case 4:
+                    initializeEnhancedRoadmap();
+                    break;
+            }
+        }
+
+        function updateNavigation() {
+            // Update progress
+            const progress = currentSection === 0 ? 0 : ((currentSection) / 4) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            
+            const sectionNames = ['Welcome', 'Chapter 1: Roadmap', 'Chapter 2: Workforce', 'Chapter 3: Summary', 'Chapter 4: Enhanced'];
+            document.getElementById('progressText').textContent = sectionNames[currentSection];
+            
+            // Update chapter navigation
+            document.querySelectorAll('.chapter-nav').forEach((nav, index) => {
+                nav.classList.remove('active', 'completed');
+                if (index === currentSection) {
+                    nav.classList.add('active');
+                } else if (index < currentSection) {
+                    nav.classList.add('completed');
+                }
+            });
+            
+            // Update navigation buttons
+            const prevButton = document.getElementById('prevButton');
+            const nextButton = document.getElementById('nextButton');
+            
+            prevButton.disabled = currentSection === 0;
+            nextButton.disabled = currentSection === 4;
+        }
+
+        function previousSection() {
+            if (currentSection > 0) {
+                showSection(currentSection - 1);
+            }
+        }
+
+        function nextSection() {
+            if (currentSection < 4) {
+                showSection(currentSection + 1);
+            }
+        }
+
+        // Roadmap Implementation (Chapter 1)
+        function initializeRoadmap() {
+            setTransformationStage(0);
+        }
+
+        function setTransformationStage(stage) {
+            currentStage = stage;
+            
+            // Update active button
+            const buttons = document.querySelectorAll('#section-1 .control-button');
+            buttons.forEach((btn, index) => {
+                btn.classList.toggle('active', index === stage);
+            });
+            
+            // Update timeline
+            document.querySelectorAll('.timeline-step').forEach((step, index) => {
+                step.classList.toggle('active', index === stage);
+            });
+            
+            // Show loading animation
+            const loadingAnimation = document.getElementById('loadingAnimation');
+            const businessUnits = document.getElementById('businessUnits');
+            
+            if (loadingAnimation && businessUnits) {
+                loadingAnimation.style.display = 'block';
+                businessUnits.style.opacity = '0.3';
+                
+                setTimeout(() => {
+                    updateRoadmapVisualization(stage);
+                    loadingAnimation.style.display = 'none';
+                    businessUnits.style.opacity = '1';
+                }, 1000);
+            }
+        }
+
+        function updateRoadmapVisualization(stage) {
+            const data = transformationData[stage] || transformationData[0];
+            
+            // Update company AI level
+            const companyAILevel = document.getElementById('companyAILevel');
+            if (companyAILevel) companyAILevel.textContent = data.companyAI;
+            
+            // Update stats with animation
+            animateStatUpdate('automationRate', data.stats.automation);
+            animateStatUpdate('aiProcesses', data.stats.processes);
+            animateStatUpdate('efficiencyGain', data.stats.efficiency);
+            animateStatUpdate('costReduction', data.stats.cost);
+            animateStatUpdate('employeeCount', data.stats.employees || "3,596");
+            
+            // Update business units
+            const container = document.getElementById('businessUnits');
+            if (container) {
+                container.innerHTML = '';
+                
+                data.units.forEach(unit => {
+                    const unitElement = createBusinessUnitElement(unit);
+                    container.appendChild(unitElement);
+                });
+            }
+        }
+
+        function createBusinessUnitElement(unit) {
+            const unitDiv = document.createElement('div');
+            unitDiv.className = 'business-unit';
+            
+            const departmentsHTML = unit.departments.map(dept => `
+                <div class="department">
+                    <div class="dept-header">
+                        <div class="dept-name">${dept.name}</div>
+                        <div class="dept-employee-count">${dept.employees || 'N/A'} emp</div>
+                        <div class="ai-badge ${dept.aiLevel}">${dept.aiLevel.toUpperCase()}</div>
+                    </div>
+                    <div class="ai-features">
+                        ${dept.features.map(feature => `<div class="ai-feature">${feature}</div>`).join('')}
+                    </div>
+                    <div class="automation-impact">
+                        <div class="impact-metric">
+                            <div class="impact-value">${dept.impact.efficiency}</div>
+                            <div class="impact-label">Efficiency</div>
+                        </div>
+                        <div class="impact-metric">
+                            <div class="impact-value">${dept.impact.cost}</div>
+                            <div class="impact-label">Cost</div>
+                        </div>
+                        <div class="impact-metric">
+                            <div class="impact-value">${dept.impact.quality}</div>
+                            <div class="impact-label">Quality</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            unitDiv.innerHTML = `
+                <div class="unit-header">
+                    <div class="unit-title">${unit.name}</div>
+                    <div class="ai-integration-bar">
+                        <div class="integration-progress" style="width: ${unit.aiLevel}%"></div>
+                    </div>
+                    <div class="ai-metrics">
+                        <span>👥 ${unit.employees} employees</span>
+                        <span>🤖 ${unit.aiLevel}% AI Integration</span>
+                    </div>
+                </div>
+                <div class="unit-content">
+                    ${departmentsHTML}
+                </div>
+            `;
+            
+            return unitDiv;
+        }
+
+        function animateStatUpdate(elementId, newValue) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            
+            const currentText = element.textContent;
+            const startValue = parseFloat(currentText.replace(/[^\d.-]/g, '')) || 0;
+            
+            let endValue;
+            if (newValue === '∞') {
+                endValue = 1000;
+            } else if (typeof newValue === 'string' && newValue.includes(',')) {
+                endValue = parseFloat(newValue.replace(/,/g, ''));
+            } else {
+                endValue = parseFloat(newValue) || 0;
+            }
+            
+            const duration = 1500;
+            const startTime = Date.now();
+            
+            function updateValue() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const currentValue = startValue + (endValue - startValue) * progress;
+                
+                if (newValue === '∞') {
+                    element.textContent = progress === 1 ? '∞' : Math.round(currentValue) + '%';
+                } else if (typeof newValue === 'string' && newValue.includes('%')) {
+                    element.textContent = Math.round(currentValue) + '%';
+                } else if (typeof newValue === 'string' && newValue.includes(',')) {
+                    element.textContent = Math.round(currentValue).toLocaleString();
+                } else {
+                    element.textContent = Math.round(currentValue);
+                }
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateValue);
+                }
+            }
+            
+            updateValue();
+        }
+
+        // Workforce Chart Implementation (Chapter 2)
+        function initializeWorkforceChart() {
+            showWorkforceView('overview');
+        }
+
+        function showWorkforceView(view) {
+            currentWorkforceView = view;
+            
+            // Update active button
+            const buttons = document.querySelectorAll('#section-2 .control-button');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.toLowerCase().includes(view.split('-')[0])) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            updateWorkforceChart(view);
+            updateWorkforceSummary();
+        }
+
+        function updateWorkforceChart(view) {
+            const ctx = document.getElementById('workforceChart');
+            if (!ctx) return;
+            
+            if (currentWorkforceChart) {
+                currentWorkforceChart.destroy();
+            }
+
+            let datasets = [];
+            let legendItems = [];
+
+            switch (view) {
+                case 'overview':
+                    // Show all business units
+                    Object.keys(employeeData.businessUnits).forEach((unit, index) => {
+                        datasets.push({
+                            label: unit,
+                            data: employeeData.businessUnits[unit].reductions,
+                            borderColor: Object.values(businessUnitColors)[index],
+                            backgroundColor: Object.values(businessUnitColors)[index] + '20',
+                            borderWidth: 3,
+                            fill: false,
+                            tension: 0.4
+                        });
+                        legendItems.push({ color: Object.values(businessUnitColors)[index], label: unit });
+                    });
+                    break;
+
+                case 'business-units':
+                    // Show top 4 largest business units
+                    const topUnits = ['Enterprise and Government', 'Consumer and SME', 'Network and Operations', 'Marketing and Data'];
+                    topUnits.forEach((unit, index) => {
+                        datasets.push({
+                            label: unit,
+                            data: employeeData.businessUnits[unit].reductions,
+                            borderColor: Object.values(businessUnitColors)[index],
+                            backgroundColor: Object.values(businessUnitColors)[index] + '20',
+                            borderWidth: 4,
+                            fill: true,
+                            tension: 0.4
+                        });
+                        legendItems.push({ color: Object.values(businessUnitColors)[index], label: unit });
+                    });
+                    break;
+
+                case 'departments':
+                    // Show departments from Enterprise and Government
+                    const depts = employeeData.businessUnits['Enterprise and Government'].departments;
+                    Object.keys(depts).forEach((dept, index) => {
+                        datasets.push({
+                            label: dept,
+                            data: depts[dept],
+                            borderColor: phaseColors[index],
+                            backgroundColor: phaseColors[index] + '20',
+                            borderWidth: 3,
+                            fill: false,
+                            tension: 0.4
+                        });
+                        legendItems.push({ color: phaseColors[index], label: dept });
+                    });
+                    break;
+
+                case 'efficiency':
+                    // Show efficiency gains vs employee reduction
+                    const efficiencyData = [6, 28, 55, 85, 300];
+                    const totalEmployees = [3596, 2762, 1694, 1016, 489];
+                    
+                    datasets = [
+                        {
+                            label: 'Total Employees',
+                            data: totalEmployees,
+                            borderColor: '#ef4444',
+                            backgroundColor: '#ef444420',
+                            borderWidth: 4,
+                            fill: true,
+                            tension: 0.4,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Efficiency Gain (%)',
+                            data: efficiencyData,
+                            borderColor: '#22c55e',
+                            backgroundColor: '#22c55e20',
+                            borderWidth: 4,
+                            fill: false,
+                            tension: 0.4,
+                            yAxisID: 'y1'
+                        }
+                    ];
+                    legendItems = [
+                        { color: '#ef4444', label: 'Total Employees' },
+                        { color: '#22c55e', label: 'Efficiency Gain (%)' }
+                    ];
+                    break;
+            }
+
+            const config = {
+                type: 'line',
+                data: {
+                    labels: employeeData.phases,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#e2e8f0',
+                            bodyColor: '#e2e8f0',
+                            borderColor: '#3b82f6',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: '#94a3b8' },
+                            title: {
+                                display: true,
+                                text: view === 'efficiency' ? 'Employee Count' : 'Number of Employees',
+                                color: '#94a3b8'
+                            }
+                        },
+                        y1: view === 'efficiency' ? {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                            ticks: {
+                                color: '#94a3b8'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Efficiency Gain (%)',
+                                color: '#94a3b8'
+                            }
+                        } : undefined
+                    }
+                }
+            };
+
+            currentWorkforceChart = new Chart(ctx.getContext('2d'), config);
+            updateWorkforceLegend(legendItems);
+        }
+
+        function updateWorkforceLegend(items) {
+            const legend = document.getElementById('workforceLegend');
+            if (legend) {
+                legend.innerHTML = items.map(item => `
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 20px; height: 3px; background-color: ${item.color}; border-radius: 2px;"></div>
+                        <div style="color: #94a3b8; font-size: 0.9rem;">${item.label}</div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function updateWorkforceSummary() {
+            const summaryGrid = document.getElementById('workforceSummary');
+            if (!summaryGrid) return;
+            
+            const units = Object.keys(employeeData.businessUnits);
+            
+            summaryGrid.innerHTML = units.map(unit => {
+                const data = employeeData.businessUnits[unit];
+                const reduction = ((data.current - data.reductions[4]) / data.current * 100).toFixed(1);
+                const isGrowth = data.reductions[4] > data.current;
+                
+                return `
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 15px;">
+                        <div style="color: #06b6d4; font-size: 1.1rem; font-weight: 600; margin-bottom: 15px;">${unit}</div>
+                        <div style="color: #94a3b8; margin-bottom: 5px;">Current: ${data.current} employees</div>
+                        <div style="color: #94a3b8; margin-bottom: 10px;">Future: ${data.reductions[4]} employees</div>
+                        <div style="height: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; overflow: hidden; margin-bottom: 10px;">
+                            <div style="height: 100%; width: ${isGrowth ? 0 : reduction}%; background: ${isGrowth ? '#22c55e' : 'linear-gradient(90deg, #ef4444, #dc2626)'}; border-radius: 4px;"></div>
+                        </div>
+                        <div style="color: ${isGrowth ? '#22c55e' : '#ef4444'}; font-size: 0.9rem;">
+                            ${isGrowth ? '+' : '-'}${Math.abs(reduction)}% ${isGrowth ? 'growth' : 'reduction'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Department Chart Implementation (Chapter 3)
+        function initializeDepartmentChart() {
+            setDeptView('all');
+        }
+
+        function setDeptView(view) {
+            currentDeptView = view;
+            
+            // Update active button
+            const buttons = document.querySelectorAll('#section-3 .control-button');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.toLowerCase().includes(view.split('-')[0])) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            updateDepartmentChart();
+        }
+
+        function setChartType(type) {
+            currentChartType = type;
+            document.querySelectorAll('#section-3 .option-button').forEach(btn => {
+                if (btn.textContent.toLowerCase() === type && btn.parentElement.parentElement.querySelector('.option-label').textContent === 'Chart Type') {
+                    btn.classList.add('active');
+                } else if (btn.parentElement.parentElement.querySelector('.option-label').textContent === 'Chart Type') {
+                    btn.classList.remove('active');
+                }
+            });
+            updateDepartmentChart();
+        }
+
+        function filterByUnit(unit) {
+            currentUnit = unit;
+            document.querySelectorAll('#section-3 .option-button').forEach(btn => {
+                if (btn.onclick && btn.onclick.toString().includes(unit) && btn.parentElement.parentElement.querySelector('.option-label').textContent === 'Business Unit') {
+                    btn.classList.add('active');
+                } else if (btn.parentElement.parentElement.querySelector('.option-label').textContent === 'Business Unit') {
+                    btn.classList.remove('active');
+                }
+            });
+            updateDepartmentChart();
+        }
+
+        function setSortBy(sortType) {
+            currentSort = sortType;
+            document.querySelectorAll('#section-3 .option-button').forEach(btn => {
+                if (btn.onclick && btn.onclick.toString().includes(sortType) && btn.parentElement.parentElement.querySelector('.option-label').textContent === 'Sort By') {
+                    btn.classList.add('active');
+                } else if (btn.parentElement.parentElement.querySelector('.option-label').textContent === 'Sort By') {
+                    btn.classList.remove('active');
+                }
+            });
+            updateDepartmentChart();
+        }
+
+        function toggleFullscreen() {
+            const chartContainer = document.querySelector('#section-3 .chart-container');
+            if (!document.fullscreenElement) {
+                if (chartContainer.requestFullscreen) {
+                    chartContainer.requestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        function toggleHelp() {
+            const helpPanel = document.getElementById('helpPanel');
+            if (helpPanel) {
+                helpPanel.style.display = helpPanel.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        function getDepartmentList() {
+            let departments = [];
+            Object.keys(employeeData.businessUnits).forEach(unit => {
+                Object.keys(employeeData.businessUnits[unit].departments).forEach(dept => {
+                    const deptData = employeeData.businessUnits[unit].departments[dept];
+                    departments.push({
+                        name: dept,
+                        unit: unit,
+                        data: deptData,
+                        reduction: ((deptData[0] - deptData[4]) / deptData[0] * 100)
+                    });
+                });
+            });
+            return departments;
+        }
+
+        function sortDepartments(departments) {
+            switch(currentSort) {
+                case 'current-size':
+                    return departments.sort((a, b) => b.data[0] - a.data[0]);
+                case 'reduction':
+                    return departments.sort((a, b) => b.reduction - a.reduction);
+                default:
+                    return departments;
+            }
+        }
+
+        function filterDepartments(departments) {
+            if (currentUnit === 'all') return departments;
+            return departments.filter(dept => dept.unit === currentUnit);
+        }
+
+        function updateDepartmentChart() {
+            const ctx = document.getElementById('departmentChart');
+            if (!ctx) return;
+            
+            if (currentDepartmentChart) {
+                currentDepartmentChart.destroy();
+            }
+
+            let departments = getDepartmentList();
+            departments = filterDepartments(departments);
+            departments = sortDepartments(departments);
+
+            let datasets = [];
+            let labels = [];
+            let title = '';
+
+            switch(currentDeptView) {
+                case 'all':
+                    labels = departments.map(dept => {
+                        if (currentUnit === 'all') {
+                            return dept.name + '\n(' + dept.unit.split(' ')[0] + ')';
+                        }
+                        return dept.name;
+                    });
+                    
+                    // Create dataset for each phase
+                    for (let phase = 0; phase < 5; phase++) {
+                        datasets.push({
+                            label: phaseNames[phase],
+                            data: departments.map(dept => dept.data[phase]),
+                            backgroundColor: phaseColors[phase] + '80',
+                            borderColor: phaseColors[phase],
+                            borderWidth: 2,
+                            fill: currentChartType === 'area'
+                        });
+                    }
+                    title = currentUnit === 'all' ? 'All Departments Across AI Transformation Phases' : currentUnit + ' - Department Transformation';
+                    break;
+
+                case 'by-unit':
+                    labels = departments.map(dept => dept.name);
+                    
+                    // Group departments by business unit and create separate datasets
+                    const unitGroups = {};
+                    departments.forEach(dept => {
+                        if (!unitGroups[dept.unit]) {
+                            unitGroups[dept.unit] = [];
+                        }
+                        unitGroups[dept.unit].push(dept);
+                    });
+
+                    // Create datasets for current vs future comparison by unit
+                    Object.keys(unitGroups).forEach((unitName, index) => {
+                        const unitDepts = unitGroups[unitName];
+                        const color = Object.values(businessUnitColors)[index % Object.keys(businessUnitColors).length];
+                        
+                        datasets.push({
+                            label: unitName + ' (Current)',
+                            data: departments.map(dept => unitDepts.includes(dept) ? dept.data[0] : null),
+                            backgroundColor: color + '60',
+                            borderColor: color,
+                            borderWidth: 2,
+                            fill: currentChartType === 'area'
+                        });
+                        
+                        datasets.push({
+                            label: unitName + ' (Future)',
+                            data: departments.map(dept => unitDepts.includes(dept) ? dept.data[4] : null),
+                            backgroundColor: color + '30',
+                            borderColor: color,
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: currentChartType === 'area'
+                        });
+                    });
+                    
+                    title = 'Department Changes by Business Unit';
+                    break;
+
+                case 'high-impact':
+                    const highImpactDepts = departments.filter(dept => Math.abs(dept.reduction) > 70);
+                    labels = highImpactDepts.map(dept => dept.name + '\n(' + dept.unit.split(' ')[0] + ')');
+                    
+                    for (let phase = 0; phase < 5; phase++) {
+                        datasets.push({
+                            label: phaseNames[phase],
+                            data: highImpactDepts.map(dept => dept.data[phase]),
+                            backgroundColor: phaseColors[phase] + '80',
+                            borderColor: phaseColors[phase],
+                            borderWidth: 2,
+                            fill: currentChartType === 'area'
+                        });
+                    }
+                    title = 'High Impact Departments (>70% Change)';
+                    break;
+
+                case 'comparison':
+                    labels = departments.map(dept => dept.name + '\n(' + dept.unit.split(' ')[0] + ')');
+                    
+                    // Create reduction percentage data
+                    const reductionData = departments.map(dept => Math.abs(dept.reduction));
+                    const currentData = departments.map(dept => dept.data[0]);
+                    const futureData = departments.map(dept => dept.data[4]);
+                    
+                    if (currentChartType === 'bar') {
+                        datasets = [
+                            {
+                                label: 'Current State',
+                                data: currentData,
+                                backgroundColor: '#ef444480',
+                                borderColor: '#ef4444',
+                                borderWidth: 2,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'Future Vision',
+                                data: futureData,
+                                backgroundColor: '#22c55e80',
+                                borderColor: '#22c55e',
+                                borderWidth: 2,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'Reduction %',
+                                data: reductionData,
+                                type: 'line',
+                                backgroundColor: '#f59e0b80',
+                                borderColor: '#f59e0b',
+                                borderWidth: 3,
+                                yAxisID: 'y1',
+                                tension: 0.4
+                            }
+                        ];
+                    } else {
+                        datasets = [
+                            {
+                                label: 'Current State',
+                                data: currentData,
+                                backgroundColor: '#ef444480',
+                                borderColor: '#ef4444',
+                                borderWidth: 2,
+                                fill: currentChartType === 'area'
+                            },
+                            {
+                                label: 'Future Vision',
+                                data: futureData,
+                                backgroundColor: '#22c55e80',
+                                borderColor: '#22c55e',
+                                borderWidth: 2,
+                                fill: currentChartType === 'area'
+                            }
+                        ];
+                    }
+                    title = 'Current vs Future State Comparison';
+                    break;
+            }
+
+            // Determine chart type
+            let chartType = currentChartType;
+            if (currentChartType === 'area') {
+                chartType = 'line';
+            }
+
+            const config = {
+                type: chartType,
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#e2e8f0',
+                            bodyColor: '#e2e8f0',
+                            borderColor: '#3b82f6',
+                            borderWidth: 1,
+                            callbacks: {
+                                afterBody: function(tooltipItems) {
+                                    if (tooltipItems.length > 0) {
+                                        const deptIndex = tooltipItems[0].dataIndex;
+                                        const dept = departments[deptIndex];
+                                        if (dept && currentDeptView !== 'by-unit') {
+                                            return [
+                                                'Business Unit: ' + dept.unit,
+                                                'Total Reduction: ' + dept.reduction.toFixed(1) + '%',
+                                                'Employee Impact: ' + (dept.data[0] - dept.data[4]) + ' positions'
+                                            ];
+                                        }
+                                    }
+                                    return '';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { 
+                                color: 'rgba(255, 255, 255, 0.1)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#94a3b8',
+                                maxRotation: 45,
+                                font: { size: 10 }
+                            }
+                        },
+                        y: {
+                            grid: { 
+                                color: 'rgba(255, 255, 255, 0.1)',
+                                drawBorder: false
+                            },
+                            ticks: { 
+                                color: '#94a3b8',
+                                callback: function(value) {
+                                    if (value >= 1000) {
+                                        return (value / 1000).toFixed(1) + 'k';
+                                    }
+                                    return value;
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Number of Employees',
+                                color: '#94a3b8'
+                            }
+                        },
+                        y1: currentDeptView === 'comparison' && currentChartType === 'bar' ? {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: {
+                                drawOnChartArea: false,
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#94a3b8',
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Reduction Percentage',
+                                color: '#94a3b8'
+                            }
+                        } : undefined
+                    },
+                    elements: {
+                        line: {
+                            tension: 0.4
+                        },
+                        point: {
+                            radius: currentChartType === 'line' ? 3 : 0,
+                            hoverRadius: 6
+                        }
+                    },
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeInOutQuart'
+                    }
+                }
+            };
+
+            currentDepartmentChart = new Chart(ctx.getContext('2d'), config);
+            document.getElementById('chartTitle').textContent = title;
+            updateDepartmentLegend(datasets);
+            updateDepartmentStats();
+        }
+
+        function updateDepartmentLegend(datasets) {
+            const legend = document.getElementById('departmentLegend');
+            if (legend) {
+                legend.innerHTML = datasets.map((dataset, index) => `
+                    <div style="display: flex; align-items: center; gap: 8px; margin: 5px 10px; cursor: pointer;" onclick="toggleDataset(${index})">
+                        <div style="width: 20px; height: 15px; background-color: ${dataset.borderColor}; border-radius: 3px; opacity: ${dataset.hidden ? 0.3 : 1};"></div>
+                        <div style="color: #94a3b8; font-size: 0.9rem; opacity: ${dataset.hidden ? 0.5 : 1};">${dataset.label}</div>
+                    </div>
+                `).join('');
+                
+                // Add legend container styling
+                legend.style.display = 'flex';
+                legend.style.flexWrap = 'wrap';
+                legend.style.justifyContent = 'center';
+                legend.style.marginTop = '20px';
+                legend.style.gap = '10px';
+            }
+        }
+
+        function toggleDataset(datasetIndex) {
+            if (currentDepartmentChart) {
+                const dataset = currentDepartmentChart.data.datasets[datasetIndex];
+                dataset.hidden = !dataset.hidden;
+                currentDepartmentChart.update();
+                updateDepartmentLegend(currentDepartmentChart.data.datasets);
+            }
+        }
+
+        function updateDepartmentStats() {
+            const departments = getDepartmentList();
+            const filteredDepts = filterDepartments(departments);
+            
+            const totalDepts = filteredDepts.length;
+            const reductions = filteredDepts.map(dept => Math.abs(dept.reduction));
+            const avgReduction = reductions.reduce((sum, red) => sum + red, 0) / totalDepts;
+            const highestImpact = Math.max(...reductions);
+            const totalCurrentJobs = filteredDepts.reduce((sum, dept) => sum + dept.data[0], 0);
+            const totalFutureJobs = filteredDepts.reduce((sum, dept) => sum + dept.data[4], 0);
+            const totalJobsAutomated = totalCurrentJobs - totalFutureJobs;
+            
+            // Calculate additional metrics
+            const highImpactCount = filteredDepts.filter(dept => Math.abs(dept.reduction) > 70).length;
+            const mediumImpactCount = filteredDepts.filter(dept => Math.abs(dept.reduction) > 40 && Math.abs(dept.reduction) <= 70).length;
+            const lowImpactCount = filteredDepts.filter(dept => Math.abs(dept.reduction) <= 40).length;
+            const growthDepts = filteredDepts.filter(dept => dept.reduction < 0).length;
+            
+            // Update the statistics cards
+            const statCards = document.querySelectorAll('#section-3 .stat-card');
+            if (statCards.length >= 4) {
+                statCards[0].querySelector('.stat-number').textContent = totalDepts;
+                statCards[1].querySelector('.stat-number').textContent = avgReduction.toFixed(1) + '%';
+                statCards[2].querySelector('.stat-number').textContent = highestImpact.toFixed(1) + '%';
+                statCards[3].querySelector('.stat-number').textContent = Math.max(0, totalJobsAutomated).toLocaleString();
+            }
+            
+            // Update additional insights in chart title area
+            const chartContainer = document.querySelector('#section-3 .chart-container');
+            let insightsDiv = chartContainer.querySelector('.chart-insights');
+            if (!insightsDiv) {
+                insightsDiv = document.createElement('div');
+                insightsDiv.className = 'chart-insights';
+                insightsDiv.style.cssText = `
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    gap: 15px;
+                    margin-bottom: 20px;
+                    padding: 20px;
+                    background: rgba(255, 255, 255, 0.03);
+                    border-radius: 10px;
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                `;
+                chartContainer.insertBefore(insightsDiv, chartContainer.querySelector('.chart-wrapper'));
+            }
+            
+            insightsDiv.innerHTML = `
+                <div style="text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: bold; color: #ef4444;">${highImpactCount}</div>
+                    <div style="font-size: 0.8rem; color: #94a3b8; text-transform: uppercase;">High Impact (>70%)</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: bold; color: #f59e0b;">${mediumImpactCount}</div>
+                    <div style="font-size: 0.8rem; color: #94a3b8; text-transform: uppercase;">Medium Impact (40-70%)</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: bold; color: #22c55e;">${lowImpactCount}</div>
+                    <div style="font-size: 0.8rem; color: #94a3b8; text-transform: uppercase;">Low Impact (<40%)</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: bold; color: #06b6d4;">${growthDepts}</div>
+                    <div style="font-size: 0.8rem; color: #94a3b8; text-transform: uppercase;">Growth Departments</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: bold; color: #8b5cf6;">${((totalJobsAutomated / totalCurrentJobs) * 100).toFixed(1)}%</div>
+                    <div style="font-size: 0.8rem; color: #94a3b8; text-transform: uppercase;">Overall Automation</div>
+                </div>
+            `;
+        }
+
+        function exportChart() {
+            const canvas = document.getElementById('departmentChart');
+            if (!canvas) return;
+            
+            // Create a higher resolution canvas for export
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = canvas.width * 2;
+            tempCanvas.height = canvas.height * 2;
+            tempCtx.scale(2, 2);
+            
+            // Set white background
+            tempCtx.fillStyle = '#ffffff';
+            tempCtx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw the chart
+            tempCtx.drawImage(canvas, 0, 0);
+            
+            // Add title and timestamp
+            tempCtx.fillStyle = '#1f2937';
+            tempCtx.font = 'bold 16px Arial';
+            tempCtx.fillText('Department Reduction Analysis - ' + new Date().toLocaleDateString(), 20, 30);
+            
+            const url = tempCanvas.toDataURL('image/png');
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `department_reduction_chart_${currentDeptView}_${new Date().toISOString().split('T')[0]}.png`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function exportData() {
+            const departments = filterDepartments(getDepartmentList());
+            let csv = 'Department,Business Unit,Current Employees,Phase 1,Phase 2,Phase 3,Future Employees,Total Reduction,Reduction %,Impact Level\n';
+            
+            departments.forEach(dept => {
+                const totalReduction = dept.data[0] - dept.data[4];
+                const reductionPercent = dept.reduction.toFixed(1);
+                const impactLevel = Math.abs(dept.reduction) > 70 ? 'High' : 
+                                 Math.abs(dept.reduction) > 40 ? 'Medium' : 'Low';
+                
+                csv += `"${dept.name}","${dept.unit}",${dept.data[0]},${dept.data[1]},${dept.data[2]},${dept.data[3]},${dept.data[4]},${totalReduction},${reductionPercent}%,${impactLevel}\n`;
+            });
+            
+            // Add summary statistics
+            csv += '\n\nSummary Statistics\n';
+            csv += `Total Departments,${departments.length}\n`;
+            csv += `Average Reduction,${(departments.reduce((sum, dept) => sum + Math.abs(dept.reduction), 0) / departments.length).toFixed(1)}%\n`;
+            csv += `Highest Impact,${Math.max(...departments.map(dept => Math.abs(dept.reduction))).toFixed(1)}%\n`;
+            csv += `Total Jobs Automated,${departments.reduce((sum, dept) => sum + Math.max(0, dept.data[0] - dept.data[4]), 0)}\n`;
+            csv += `High Impact Departments,${departments.filter(dept => Math.abs(dept.reduction) > 70).length}\n`;
+            csv += `Growth Departments,${departments.filter(dept => dept.reduction < 0).length}\n`;
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `department_analysis_${currentDeptView}_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Summary Implementation (Chapter 4)
+        function initializeSummary() {
+            generateSummaryContent();
+        }
+
+        function generateBusinessUnitHTML(unitName, unitData) {
+            const totalReduction = ((unitData.current - unitData.final) / unitData.current * 100);
+            const isGrowth = unitData.final > unitData.current;
+            
+            let departmentRows = '';
+            Object.keys(unitData.departments).forEach(deptName => {
+                const dept = unitData.departments[deptName];
+                const deptReduction = ((dept.current - dept.phases[4]) / dept.current * 100);
+                const isDeptGrowth = dept.phases[4] > dept.current;
+                
+                let reductionClass = 'reduction-low';
+                if (!isDeptGrowth) {
+                    if (deptReduction > 80) reductionClass = 'reduction-high';
+                    else if (deptReduction > 50) reductionClass = 'reduction-medium';
+                } else {
+                    reductionClass = 'reduction-growth';
+                }
+
+                const maxEmployees = Math.max(...dept.phases);
+                
+                departmentRows += `
+                    <tr class="department-row" data-department="${deptName.toLowerCase()}">
+                        <td class="department-name">${deptName}</td>
+                        <td class="employee-count current-count">${dept.current}</td>
+                        <td class="employee-count phase-count">${dept.phases[1]}</td>
+                        <td class="employee-count phase-count">${dept.phases[2]}</td>
+                        <td class="employee-count phase-count">${dept.phases[3]}</td>
+                        <td class="employee-count final-count">${dept.phases[4]}</td>
+                        <td class="reduction-percent ${reductionClass}">
+                            ${isDeptGrowth ? '+' : ''}${Math.abs(deptReduction).toFixed(1)}%
+                        </td>
+                        <td>
+                            <div class="visualization-bar">
+                                <div class="bar-current" style="width: ${(dept.current / maxEmployees) * 100}%"></div>
+                            </div>
+                            <div class="visualization-bar">
+                                <div class="bar-final" style="width: ${(dept.phases[4] / maxEmployees) * 100}%"></div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            return `
+                <div class="business-unit-container" id="unit-${unitName.replace(/\s+/g, '-')}">
+                    <div class="business-unit-header" onclick="toggleUnit('${unitName.replace(/\s+/g, '-')}')">
+                        <div class="unit-title">${unitName}</div>
+                        <div class="unit-summary">
+                            <div class="unit-stats">
+                                <div class="unit-stat">
+                                    <div class="unit-stat-number">${unitData.current}</div>
+                                    <div class="unit-stat-label">Current</div>
+                                </div>
+                                <div class="unit-stat">
+                                    <div class="unit-stat-number">${unitData.final}</div>
+                                    <div class="unit-stat-label">Future</div>
+                                </div>
+                                <div class="unit-stat">
+                                    <div class="unit-stat-number" style="color: ${isGrowth ? '#22c55e' : '#ef4444'}">
+                                        ${isGrowth ? '+' : ''}${Math.abs(totalReduction).toFixed(1)}%
+                                    </div>
+                                    <div class="unit-stat-label">${isGrowth ? 'Growth' : 'Reduction'}</div>
+                                </div>
+                                <div class="unit-stat">
+                                    <div class="unit-stat-number">${Object.keys(unitData.departments).length}</div>
+                                    <div class="unit-stat-label">Departments</div>
+                                </div>
+                            </div>
+                            <div class="expand-icon">▼</div>
+                        </div>
+                    </div>
+                    <div class="departments-table">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Department</th>
+                                        <th>Current</th>
+                                        <th>Phase 1</th>
+                                        <th>Phase 2</th>
+                                        <th>Phase 3</th>
+                                        <th>Future</th>
+                                        <th>Change</th>
+                                        <th>Visualization</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${departmentRows}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateSummaryContent() {
+            const container = document.getElementById('businessUnitsContainer');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            Object.keys(summaryEmployeeData).forEach(unitName => {
+                container.innerHTML += generateBusinessUnitHTML(unitName, summaryEmployeeData[unitName]);
+            });
+        }
+
+        function toggleUnit(unitId) {
+            const unit = document.getElementById(`unit-${unitId}`);
+            if (unit) {
+                unit.classList.toggle('expanded');
+            }
+        }
+
+        function showAllUnits() {
+            document.querySelectorAll('#section-4 .control-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('#section-4 .control-button')[0].classList.add('active');
+            generateSummaryContent();
+        }
+
+        function expandAllUnits() {
+            document.querySelectorAll('.business-unit-container').forEach(unit => {
+                unit.classList.add('expanded');
+            });
+        }
+
+        function collapseAllUnits() {
+            document.querySelectorAll('.business-unit-container').forEach(unit => {
+                unit.classList.remove('expanded');
+            });
+        }
+
+        function showHighImpactSummary() {
+            document.querySelectorAll('#section-4 .control-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('#section-4 .control-button')[3].classList.add('active');
+            
+            // Filter to show only units with >70% reduction
+            const container = document.getElementById('businessUnitsContainer');
+            container.innerHTML = '';
+            
+            Object.keys(summaryEmployeeData).forEach(unitName => {
+                const unitData = summaryEmployeeData[unitName];
+                const reduction = ((unitData.current - unitData.final) / unitData.current * 100);
+                if (reduction > 70) {
+                    container.innerHTML += generateBusinessUnitHTML(unitName, unitData);
+                }
+            });
+            
+            expandAllUnits();
+        }
+
+        function filterDepartments() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('.department-row');
+            
+            rows.forEach(row => {
+                const deptName = row.dataset.department;
+                if (deptName.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function exportToCSV() {
+            let csv = 'Business Unit,Department,Current,Phase 1,Phase 2,Phase 3,Future,Reduction %\n';
+            
+            Object.keys(summaryEmployeeData).forEach(unitName => {
+                const unitData = summaryEmployeeData[unitName];
+                Object.keys(unitData.departments).forEach(deptName => {
+                    const dept = unitData.departments[deptName];
+                    const reduction = ((dept.current - dept.phases[4]) / dept.current * 100).toFixed(1);
+                    csv += `"${unitName}","${deptName}",${dept.current},${dept.phases[1]},${dept.phases[2]},${dept.phases[3]},${dept.phases[4]},${reduction}%\n`;
+                });
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'department_reduction_analysis.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                previousSection();
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                nextSection();
+            } else if (e.key >= '1' && e.key <= '5') {
+                e.preventDefault();
+                showSection(parseInt(e.key) - 1);
+            }
+            
+            // Department-specific shortcuts (only when on section 3)
+            if (currentSection === 3) {
+                switch(e.key.toLowerCase()) {
+                    case 'b':
+                        e.preventDefault();
+                        setChartType('bar');
+                        break;
+                    case 'l':
+                        e.preventDefault();
+                        setChartType('line');
+                        break;
+                    case 'a':
+                        e.preventDefault();
+                        setChartType('area');
+                        break;
+                    case 'h':
+                        e.preventDefault();
+                        setDeptView('high-impact');
+                        break;
+                    case 'c':
+                        e.preventDefault();
+                        setDeptView('comparison');
+                        break;
+                    case 'e':
+                        e.preventDefault();
+                        exportChart();
+                        break;
+                    case 'd':
+                        e.preventDefault();
+                        exportData();
+                        break;
+                    case 'f':
+                        e.preventDefault();
+                        toggleFullscreen();
+                        break;
+                }
+            }
+        });
+
+        // Touch/swipe support for mobile
+        let touchStartX = 0;
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            const touchEndX = e.changedTouches[0].clientX;
+            const diff = touchStartX - touchEndX;
+            
+            if (Math.abs(diff) > 50) {
+                if (diff > 0 && currentSection < 4) {
+                    nextSection();
+                } else if (diff < 0 && currentSection > 0) {
+                    previousSection();
+                }
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            updateNavigation();
+        });
+    </script>
+</body>
+</html>
+                    
