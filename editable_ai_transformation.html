@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editable AI Transformation Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+            padding: 20px;
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .dashboard-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #06b6d4, #3b82f6, #8b5cf6);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .dashboard-header p {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+
+        .controls-section {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .data-editor {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .data-editor h3 {
+            color: #06b6d4;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #e2e8f0;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #06b6d4;
+            box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.2);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: rgba(59, 130, 246, 0.2);
+            border: 2px solid #3b82f6;
+            color: #60a5fa;
+            padding: 8px 16px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+
+        .btn:hover {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .visualization-area {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #06b6d4;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .department-editor {
+            margin-top: 20px;
+        }
+
+        .department-item {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border-left: 4px solid #06b6d4;
+        }
+
+        .department-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .department-name {
+            color: #e2e8f0;
+            font-weight: 500;
+        }
+
+        .phase-inputs {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
+        .phase-input {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .phase-input label {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-bottom: 5px;
+        }
+
+        .phase-input input {
+            width: 80px;
+            text-align: center;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #e2e8f0;
+            border-radius: 5px;
+        }
+
+        .business-unit-section {
+            margin-bottom: 25px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .business-unit-header {
+            color: #06b6d4;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .unit-total {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .export-controls {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .btn-export {
+            background: rgba(34, 197, 94, 0.2);
+            border: 2px solid #22c55e;
+            color: #22c55e;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn-export:hover {
+            background: #22c55e;
+            color: white;
+        }
+
+        @media (max-width: 1024px) {
+            .controls-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .phase-inputs {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .phase-input input {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+
+        .scrollbar-style {
+            scrollbar-width: thin;
+            scrollbar-color: #3b82f6 rgba(255, 255, 255, 0.1);
+        }
+
+        .scrollbar-style::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .scrollbar-style::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .scrollbar-style::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 4px;
+        }
+
+        .scrollbar-style::-webkit-scrollbar-thumb:hover {
+            background: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-header">
+        <h1>🚀 Editable AI Transformation Dashboard</h1>
+        <p>Customize all numbers and see real-time updates to your transformation analysis</p>
+    </div>
+
+    <div class="controls-section">
+        <div class="data-editor scrollbar-style">
+            <h3>📊 Overall Statistics</h3>
+            
+            <div class="input-group">
+                <label>Current Phase</label>
+                <select id="currentPhase" onchange="updatePhase()">
+                    <option value="0">Current State</option>
+                    <option value="1">Phase 1: Automation</option>
+                    <option value="2">Phase 2: AI Enhancement</option>
+                    <option value="3">Phase 3: AI-Native</option>
+                    <option value="4">Future Vision</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>Automation Rate (%)</label>
+                <input type="number" id="automationRate" value="12" min="0" max="100" onchange="updateStats()">
+            </div>
+
+            <div class="input-group">
+                <label>AI Processes</label>
+                <input type="number" id="aiProcesses" value="18" min="0" onchange="updateStats()">
+            </div>
+
+            <div class="input-group">
+                <label>Efficiency Gain (%)</label>
+                <input type="number" id="efficiencyGain" value="6" min="0" max="1000" onchange="updateStats()">
+            </div>
+
+            <div class="input-group">
+                <label>Cost Reduction (%)</label>
+                <input type="number" id="costReduction" value="8" min="0" max="100" onchange="updateStats()">
+            </div>
+
+            <div class="input-group">
+                <label>Total Investment ($M)</label>
+                <input type="number" id="totalInvestment" value="45" min="0" step="0.1" onchange="updateStats()">
+            </div>
+
+            <h3 style="margin-top: 25px;">🏢 Business Unit Data</h3>
+            <div id="businessUnitEditor">
+                <!-- Dynamically generated business unit editors -->
+            </div>
+        </div>
+
+        <div class="visualization-area">
+            <div class="button-group">
+                <button class="btn active" onclick="showChart('overview')">📊 Overview</button>
+                <button class="btn" onclick="showChart('business-units')">🏢 Business Units</button>
+                <button class="btn" onclick="showChart('efficiency')">⚡ Efficiency</button>
+                <button class="btn" onclick="showChart('reduction')">📉 Reduction Analysis</button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="displayAutomation">12%</div>
+                    <div class="stat-label">Automation Rate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="displayProcesses">18</div>
+                    <div class="stat-label">AI Processes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="displayEfficiency">6%</div>
+                    <div class="stat-label">Efficiency Gain</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="displayCost">8%</div>
+                    <div class="stat-label">Cost Reduction</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="displayTotal">3,596</div>
+                    <div class="stat-label">Total Employees</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="displayInvestment">$45M</div>
+                    <div class="stat-label">Investment</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="mainChart"></canvas>
+            </div>
+
+            <div class="export-controls">
+                <button class="btn-export" onclick="exportData()">📊 Export Data</button>
+                <button class="btn-export" onclick="importData()">📁 Import Data</button>
+                <button class="btn-export" onclick="resetData()">🔄 Reset to Default</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global data store
+        let employeeData = {
+            phases: ['Current', 'Phase 1', 'Phase 2', 'Phase 3', 'Future'],
+            businessUnits: {
+                'Enterprise and Government': {
+                    current: 1143,
+                    phases: [1143, 915, 571, 343, 200],
+                    color: '#ef4444'
+                },
+                'Consumer and SME': {
+                    current: 825,
+                    phases: [825, 660, 413, 248, 145],
+                    color: '#f97316'
+                },
+                'Network and Operations': {
+                    current: 658,
+                    phases: [658, 461, 263, 132, 65],
+                    color: '#eab308'
+                },
+                'Marketing and Data': {
+                    current: 565,
+                    phases: [565, 395, 226, 113, 55],
+                    color: '#22c55e'
+                },
+                'Group Finance': {
+                    current: 124,
+                    phases: [124, 99, 62, 37, 22],
+                    color: '#06b6d4'
+                },
+                'Commercial and Legal': {
+                    current: 136,
+                    phases: [136, 109, 68, 41, 24],
+                    color: '#3b82f6'
+                },
+                'Group People and Culture': {
+                    current: 106,
+                    phases: [106, 85, 53, 32, 19],
+                    color: '#8b5cf6'
+                },
+                'Corporate Relations': {
+                    current: 20,
+                    phases: [20, 16, 10, 6, 4],
+                    color: '#e879f9'
+                },
+                'Spark Innovation': {
+                    current: 16,
+                    phases: [16, 19, 25, 35, 50],
+                    color: '#f43f5e'
+                },
+                'Strategy and Regulatory': {
+                    current: 3,
+                    phases: [3, 3, 3, 3, 3],
+                    color: '#84cc16'
+                }
+            }
+        };
+
+        let currentChart = null;
+        let currentView = 'overview';
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            generateBusinessUnitEditors();
+            updateStats();
+            showChart('overview');
+        });
+
+        function generateBusinessUnitEditors() {
+            const container = document.getElementById('businessUnitEditor');
+            container.innerHTML = '';
+
+            Object.keys(employeeData.businessUnits).forEach(unitName => {
+                const unit = employeeData.businessUnits[unitName];
+                const unitDiv = document.createElement('div');
+                unitDiv.className = 'business-unit-section';
+
+                const totalCurrent = unit.phases[0];
+                const totalFuture = unit.phases[4];
+                const change = ((totalFuture - totalCurrent) / totalCurrent * 100).toFixed(1);
+
+                unitDiv.innerHTML = `
+                    <div class="business-unit-header">
+                        <span>${unitName}</span>
+                        <span class="unit-total">
+                            ${totalCurrent} → ${totalFuture} (${change > 0 ? '+' : ''}${change}%)
+                        </span>
+                    </div>
+                    <div class="phase-inputs">
+                        <div class="phase-input">
+                            <label>Current</label>
+                            <input type="number" value="${unit.phases[0]}" min="0" 
+                                   onchange="updateBusinessUnit('${unitName}', 0, this.value)">
+                        </div>
+                        <div class="phase-input">
+                            <label>Phase 1</label>
+                            <input type="number" value="${unit.phases[1]}" min="0" 
+                                   onchange="updateBusinessUnit('${unitName}', 1, this.value)">
+                        </div>
+                        <div class="phase-input">
+                            <label>Phase 2</label>
+                            <input type="number" value="${unit.phases[2]}" min="0" 
+                                   onchange="updateBusinessUnit('${unitName}', 2, this.value)">
+                        </div>
+                        <div class="phase-input">
+                            <label>Phase 3</label>
+                            <input type="number" value="${unit.phases[3]}" min="0" 
+                                   onchange="updateBusinessUnit('${unitName}', 3, this.value)">
+                        </div>
+                        <div class="phase-input">
+                            <label>Future</label>
+                            <input type="number" value="${unit.phases[4]}" min="0" 
+                                   onchange="updateBusinessUnit('${unitName}', 4, this.value)">
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(unitDiv);
+            });
+        }
+
+        function updateBusinessUnit(unitName, phaseIndex, value) {
+            const numValue = parseInt(value) || 0;
+            employeeData.businessUnits[unitName].phases[phaseIndex] = numValue;
+            
+            // Update current value if it's phase 0
+            if (phaseIndex === 0) {
+                employeeData.businessUnits[unitName].current = numValue;
+            }
+            
+            // Refresh displays
+            generateBusinessUnitEditors();
+            updateStats();
+            showChart(currentView);
+        }
+
+        function updatePhase() {
+            const phase = document.getElementById('currentPhase').value;
+            const phaseData = {
+                0: { automation: 12, processes: 18, efficiency: 6, cost: 8 },
+                1: { automation: 38, processes: 89, efficiency: 28, cost: 35 },
+                2: { automation: 68, processes: 245, efficiency: 55, cost: 62 },
+                3: { automation: 88, processes: 456, efficiency: 85, cost: 78 },
+                4: { automation: 100, processes: 999, efficiency: 300, cost: 95 }
+            };
+
+            const data = phaseData[phase];
+            document.getElementById('automationRate').value = data.automation;
+            document.getElementById('aiProcesses').value = data.processes;
+            document.getElementById('efficiencyGain').value = data.efficiency;
+            document.getElementById('costReduction').value = data.cost;
+
+            updateStats();
+        }
+
+        function updateStats() {
+            // Get current values
+            const automation = document.getElementById('automationRate').value;
+            const processes = document.getElementById('aiProcesses').value;
+            const efficiency = document.getElementById('efficiencyGain').value;
+            const cost = document.getElementById('costReduction').value;
+            const investment = document.getElementById('totalInvestment').value;
+
+            // Calculate total employees
+            const totalEmployees = Object.values(employeeData.businessUnits)
+                .reduce((sum, unit) => sum + unit.phases[0], 0);
+
+            // Update display
+            document.getElementById('displayAutomation').textContent = automation + '%';
+            document.getElementById('displayProcesses').textContent = processes;
+            document.getElementById('displayEfficiency').textContent = efficiency + '%';
+            document.getElementById('displayCost').textContent = cost + '%';
+            document.getElementById('displayTotal').textContent = totalEmployees.toLocaleString();
+            document.getElementById('displayInvestment').textContent = '$' + investment + 'M';
+
+            // Update chart if visible
+            if (currentChart) {
+                showChart(currentView);
+            }
+        }
+
+        function showChart(type) {
+            currentView = type;
+
+            // Update active button
+            document.querySelectorAll('.btn').forEach(btn => btn.classList.remove('active'));
+            event?.target?.classList.add('active') || 
+            document.querySelector(`.btn[onclick="showChart('${type}')"]`)?.classList.add('active');
+
+            // Destroy existing chart
+            if (currentChart) {
+                currentChart.destroy();
+            }
+
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            let datasets = [];
+
+            switch (type) {
+                case 'overview':
+                    // Show total employee count across phases
+                    const totalData = employeeData.phases.map((_, phaseIndex) => 
+                        Object.values(employeeData.businessUnits)
+                            .reduce((sum, unit) => sum + (unit.phases[phaseIndex] || 0), 0)
+                    );
+
+                    datasets = [{
+                        label: 'Total Employees',
+                        data: totalData,
+                        borderColor: '#06b6d4',
+                        backgroundColor: '#06b6d420',
+                        borderWidth: 4,
+                        fill: true,
+                        tension: 0.4
+                    }];
+                    break;
+
+                case 'business-units':
+                    // Show all business units
+                    Object.keys(employeeData.businessUnits).forEach(unitName => {
+                        const unit = employeeData.businessUnits[unitName];
+                        datasets.push({
+                            label: unitName,
+                            data: unit.phases,
+                            borderColor: unit.color,
+                            backgroundColor: unit.color + '20',
+                            borderWidth: 3,
+                            fill: false,
+                            tension: 0.4
+                        });
+                    });
+                    break;
+
+                case 'efficiency':
+                    // Show efficiency vs employee reduction
+                    const efficiency = [6, 28, 55, 85, 300];
+                    const totalEmployees = employeeData.phases.map((_, phaseIndex) => 
+                        Object.values(employeeData.businessUnits)
+                            .reduce((sum, unit) => sum + (unit.phases[phaseIndex] || 0), 0)
+                    );
+
+                    datasets = [
+                        {
+                            label: 'Total Employees',
+                            data: totalEmployees,
+                            borderColor: '#ef4444',
+                            backgroundColor: '#ef444420',
+                            borderWidth: 4,
+                            fill: true,
+                            tension: 0.4,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Efficiency Gain (%)',
+                            data: efficiency,
+                            borderColor: '#22c55e',
+                            backgroundColor: '#22c55e20',
+                            borderWidth: 4,
+                            fill: false,
+                            tension: 0.4,
+                            yAxisID: 'y1'
+                        }
+                    ];
+                    break;
+
+                case 'reduction':
+                    // Show reduction percentages
+                    const reductionData = Object.keys(employeeData.businessUnits).map(unitName => {
+                        const unit = employeeData.businessUnits[unitName];
+                        const reduction = ((unit.phases[0] - unit.phases[4]) / unit.phases[0] * 100);
+                        return { unit: unitName, reduction: Math.max(0, reduction) };
+                    });
+
+                    datasets = [{
+                        label: 'Workforce Reduction (%)',
+                        data: reductionData.map(d => d.reduction),
+                        backgroundColor: reductionData.map((_, i) => Object.values(employeeData.businessUnits)[i].color),
+                        borderWidth: 2,
+                        borderColor: '#1e293b'
+                    }];
+
+                    currentChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: reductionData.map(d => d.unit.split(' ')[0]),
+                            datasets: datasets
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                    titleColor: '#e2e8f0',
+                                    bodyColor: '#e2e8f0'
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                                    ticks: { color: '#94a3b8' }
+                                },
+                                y: {
+                                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                                    ticks: { color: '#94a3b8' },
+                                    title: {
+                                        display: true,
+                                        text: 'Reduction Percentage (%)',
+                                        color: '#94a3b8'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    return;
+            }
+
+            // Create line chart for non-reduction views
+            const scales = {
+                x: {
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                    ticks: { color: '#94a3b8' }
+                },
+                y: {
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                    ticks: { color: '#94a3b8' },
+                    title: {
+                        display: true,
+                        text: type === 'efficiency' ? 'Employee Count' : 'Number of Employees',
+                        color: '#94a3b8'
+                    }
+                }
+            };
+
+            if (type === 'efficiency') {
+                scales.y1 = {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    grid: { drawOnChartArea: false },
+                    ticks: { color: '#94a3b8' },
+                    title: {
+                        display: true,
+                        text: 'Efficiency Gain (%)',
+                        color: '#94a3b8'
+                    }
+                };
+            }
+
+            currentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: employeeData.phases,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: type === 'business-units',
+                            labels: { color: '#94a3b8' }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#e2e8f0',
+                            bodyColor: '#e2e8f0'
+                        }
+                    },
+                    scales: scales
+                }
+            });
+        }
+
+        function exportData() {
+            const data = {
+                stats: {
+                    automation: document.getElementById('automationRate').value,
+                    processes: document.getElementById('aiProcesses').value,
+                    efficiency: document.getElementById('efficiencyGain').value,
+                    cost: document.getElementById('costReduction').value,
+                    investment: document.getElementById('totalInvestment').value
+                },
+                businessUnits: employeeData.businessUnits
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'ai_transformation_data.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            
+                            // Update stats
+                            if (data.stats) {
+                                document.getElementById('automationRate').value = data.stats.automation || 12;
+                                document.getElementById('aiProcesses').value = data.stats.processes || 18;
+                                document.getElementById('efficiencyGain').value = data.stats.efficiency || 6;
+                                document.getElementById('costReduction').value = data.stats.cost || 8;
+                                document.getElementById('totalInvestment').value = data.stats.investment || 45;
+                            }
+                            
+                            // Update business units
+                            if (data.businessUnits) {
+                                employeeData.businessUnits = { ...employeeData.businessUnits, ...data.businessUnits };
+                            }
+                            
+                            // Refresh everything
+                            generateBusinessUnitEditors();
+                            updateStats();
+                            showChart(currentView);
+                            
+                            alert('Data imported successfully!');
+                        } catch (error) {
+                            alert('Error importing data: ' + error.message);
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        }
+
+        function resetData() {
+            if (confirm('Are you sure you want to reset all data to default values?')) {
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
